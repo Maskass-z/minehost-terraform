@@ -1,0 +1,14 @@
+# Node.js
+node_modules/
+.env
+
+# Instances Minecraft
+instances/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Logs
+*.log
