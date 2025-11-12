@@ -17,7 +17,7 @@ app.post('/create-vm', (req, res) => {
   // 🔧 Ici, tu peux intégrer le script réel de création de VM ou serveur
   // Pour le test, on renvoie des valeurs fictives
   const serverData = {
-    ip: '123.456.78.90',
+    ip: '192.168.78.0',
     port: 25565,
     connect: `${username.toLowerCase()}.minehost.fr`
   };
