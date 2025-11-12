@@ -10,7 +10,7 @@ Terraform → outil d’infrastructure as code pour créer et configurer la VM,
 
 HTML / JavaScript → interface web simple pour remplir le formulaire utilisateur.
 
-⚙️ **Fonctionnement global**
+ **Fonctionnement global**
 
 L’utilisateur remplit un formulaire web :
 Il choisit son pseudo, la version Minecraft, la taille de la VM et la région (Azure ou local VirtualBox).
@@ -39,7 +39,7 @@ Résultat retourné à l’utilisateur :
 L’API renvoie l’IP publique et le port du serveur Minecraft.
 → L’utilisateur peut se connecter directement depuis son client Minecraft.
 
-🧱 **Architecture du projet**
+ **Architecture du projet**
 minecraft-terraform-api/
 ├── app.js                  → API Node.js/Express principale
 ├── package.json            → Dépendances Node.js
@@ -51,7 +51,7 @@ minecraft-terraform-api/
 │   └── install_minecraft.sh
 └── instances/              → Dossiers créés par utilisateur (VM personnalisée)
 
-🧩 **Objectif technique**
+ **Objectif technique**
 
 Automatiser la création d’une VM et l’installation du serveur Minecraft.
 
@@ -61,7 +61,7 @@ Centraliser la gestion des serveurs (un serveur différent par utilisateur).
 
 Rendre le processus reproductible grâce à Terraform (infrastructure as code).
 
-💼 **Compétences visées**
+ **Compétences visées**
 
 Administration système (création et gestion de VMs).
 
@@ -73,7 +73,7 @@ Hébergement et gestion d’un service applicatif (Minecraft).
 
 Sauvegarde, restauration et supervision d’un service en ligne.
 
-🎯 **Résultat attendu**
+ **Résultat attendu**
 
 À la fin du projet, il faut que :
 ✅ Le site web fonctionne et permette de créer une VM automatiquement.
