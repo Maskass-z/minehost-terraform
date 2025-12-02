@@ -1,0 +1,67 @@
+<!doctype html>
+<title>Mon Hôte Minecraft</title>
+<h1>Bienvenue, {{ username }}!</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+      <li style="color: {{ 'green' if category == 'success' else 'red' }};">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<h2>Créer un nouveau serveur Minecraft</h2>
+<form method="POST" action="{{ url_for('create_server') }}">
+    Nom du Serveur: <input type="text" name="server_name" required><br>
+    Version: 
+    <select name="version">
+        <option value="1.21.8">1.21.8</option>
+        <option value="1.20.1">1.20.1</option>
+        <option value="1.19.4">1.19.4</option>
+    </select><br>
+    Mémoire (Recommandé: 384M sur votre VM): <input type="text" name="memory" value="384M"><br>
+    <button type="submit">Créer le Serveur</button>
+</form>
+
+<hr>
+
+<h2>Vos Serveurs Actifs</h2>
+{% if servers %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Version</th>
+                <th>Port Public</th>
+                <th>Statut</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for name, port, version, status in servers %}
+            <tr>
+                <td>{{ name }}</td>
+                <td>{{ version }}</td>
+                <td>{{ port }}</td>
+                <td>{{ status }}</td>
+                <td>
+                    <a href="{{ url_for('show_logs', server_name=name) }}">[Logs]</a> | 
+                    {% if status == 'running' %}
+                        <a href="{{ url_for('stop_server', server_name=name) }}">Arrêter</a> |
+                    {% endif %}
+                    {% if status == 'stopped' %}
+                        <a href="{{ url_for('start_server', server_name=name) }}">Démarrer</a> |
+                    {% endif %}
+                    <a href="{{ url_for('delete_server', server_name=name) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer {{ name }} ?')">Supprimer</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Vous n'avez aucun serveur actif.</p>
+{% endif %}
+
+<p><a href="{{ url_for('logout') }}">Déconnexion</a></p>
