@@ -1,14 +1,22 @@
-# Node.js
-node_modules/
+# --- SÉCURITÉ (NE JAMAIS ENLEVER) ---
 .env
 
-# Instances Minecraft
-instances/
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
 
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.backup
+# --- Docker & Données ---
+# On ignore les données de la BDD et des serveurs Minecraft
+# pour ne pas uploader 50Go de données sur GitHub
+db_data/
+api/servers_data/
+minecraft_data/
 
-# Logs
-*.log
+# --- IDE (VS Code, etc.) ---
+.vscode/
+.idea/
+*.swp
