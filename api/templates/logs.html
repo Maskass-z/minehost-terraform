@@ -1,0 +1,13 @@
+<!doctype html>
+<title>Logs du Serveur {{ server_name }}</title>
+<h1>Logs du Serveur : {{ server_name }}</h1>
+
+{% if success %}
+    <pre style="background-color: #f4f4f4; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; word-break: break-all;">
+{{ logs_content }}
+    </pre>
+{% else %}
+    <p style="color: red;">Erreur : {{ logs_content }}</p>
+{% endif %}
+
+<p><a href="{{ url_for('index') }}">Retour au tableau de bord</a></p>

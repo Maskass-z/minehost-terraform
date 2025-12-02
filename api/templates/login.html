@@ -1,0 +1,23 @@
+<!doctype html>
+<title>Connexion</title>
+<h1>Connexion au Panneau d'Hébergement</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+      <li style="color: {{ 'green' if category == 'success' else 'red' }};">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form method="POST" action="{{ url_for('login') }}">
+    <label for="username">Nom d'utilisateur:</label><br>
+    <input type="text" id="username" name="username" required><br><br>
+    <label for="password">Mot de passe:</label><br>
+    <input type="password" id="password" name="password" required><br><br>
+    <button type="submit">Se connecter</button>
+</form>
+
+<p>Pas encore de compte ? <a href="{{ url_for('register') }}">S'inscrire</a></p>
