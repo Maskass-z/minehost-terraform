@@ -33,7 +33,7 @@ Le client reçoit ses accès et peut gérer son serveur (Start/Stop/Logs) via so
 Accès Sécurisé : Le client se connecte au réseau VPN privé pour accéder à son serveur loué, garantissant une protection totale contre les attaques externes (DDoS).
 
  Architecture Technique
-Plaintext
+
 
 MINEHOST_CLEAN/
 ├── app.py                → API de Gestion (Logique métier, quotas location, sécurité)
