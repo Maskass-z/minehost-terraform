@@ -1,84 +1,72 @@
-# 💡 Projet – Déploiement automatisé d’un serveur Minecraft
+# Projet – MineHost : Plateforme d'Hébergement Automatisé de Serveurs Minecraft
+ But du projet
+Développer une plateforme d'hébergement (Hosting Provider) clé en main permettant à des clients de louer des serveurs Minecraft. Le système génère automatiquement l'infrastructure technique (conteneur Docker) dès la commande, sans intervention humaine, offrant un service disponible 24/7.
 
-Le but du projet est de créer une plateforme web qui permet à n’importe quel utilisateur de déployer automatiquement un serveur Minecraft sur une machine virtuelle, en quelques clics.
+ Technologies Principales
+L’ensemble repose sur une stack technique optimisée pour la vente de services :
 
-L’ensemble repose sur trois technologies principales :
+Python / Flask → Backend API qui gère les commandes, la facturation (simulée) et l'orchestration des ressources.
 
-Node.js / Express → API web qui reçoit les demandes des utilisateurs,
+Docker → Moteur de virtualisation légère permettant de générer instantanément les serveurs loués.
 
-Terraform → outil d’infrastructure as code pour créer et configurer la VM,
+PostgreSQL → Base de données pour le suivi des clients, des abonnements et des instances actives.
 
-HTML / JavaScript → interface web simple pour remplir le formulaire utilisateur.
+VPN → Infrastructure réseau privée pour garantir la sécurité et l'exclusivité de l'accès aux locataires.
 
- **Fonctionnement global**
+ Fonctionnement Global (Workflow de Location)
+Commande Client : L'utilisateur s'inscrit, choisit une offre (ex: Serveur "Survie" 2Go RAM) et valide sa demande.
 
-L’utilisateur remplit un formulaire web :
-Il choisit son pseudo, la version Minecraft, la taille de la VM et la région (Azure ou local VirtualBox).
+Provisionning Automatique :
 
-L’API Node.js reçoit la requête et :
+L'API vérifie la disponibilité des ressources et le quota du client.
 
-génère un mot de passe admin et un port aléatoire,
+Elle pilote le socket Docker pour instancier un nouveau conteneur isolé.
 
-copie les fichiers Terraform,
+Elle configure les limites de ressources (CPU/RAM) correspondant à l'offre louée.
 
-crée un dossier unique (ex: instances/alex_2025-11-12/),
+Livraison du Service :
 
-écrit un fichier terraform.tfvars avec les valeurs du formulaire,
+Le serveur démarre avec un port dédié et un volume de stockage persistant.
 
-exécute terraform init puis terraform apply.
+Le client reçoit ses accès et peut gérer son serveur (Start/Stop/Logs) via son panel client web.
 
-Terraform déploie la VM :
+Accès Sécurisé : Le client se connecte au réseau VPN privé pour accéder à son serveur loué, garantissant une protection totale contre les attaques externes (DDoS).
 
-crée une machine virtuelle (Azure ou VirtualBox selon l’environnement),
+ Architecture Technique
+Plaintext
 
-configure le réseau et les ports,
+MINEHOST_CLEAN/
+├── app.py                → API de Gestion (Logique métier, quotas location, sécurité)
+├── database.py           → Base de données Clients & Inventaire Serveurs
+├── docker-compose.yaml   → Infrastructure de l'hébergeur
+├── .env                  → Gestion sécurisée des secrets de l'infrastructure
+├── Dockerfile            → Image du Panel de Gestion Web
+└── templates/            → Espace Client (Dashboard de gestion des locations)
+🧩 Objectifs Techniques
+Automatisation Totale : Supprimer toute intervention manuelle entre la commande du client et la livraison du serveur.
 
-exécute un script d’installation Minecraft sur la VM (Java, serveur, eula).
+Rentabilité des Ressources (Docker) : Utiliser des conteneurs plutôt que des VM pour maximiser le nombre de serveurs clients hébergés sur une même machine physique (Densification).
 
-Résultat retourné à l’utilisateur :
-L’API renvoie l’IP publique et le port du serveur Minecraft.
-→ L’utilisateur peut se connecter directement depuis son client Minecraft.
+Isolation Multi-locataire : Garantir qu'un client ne puisse jamais impacter ou accéder aux données d'un autre client (Isolation stricte via Docker & PostgreSQL).
 
- **Architecture du projet**
-minecraft-terraform-api/
-├── app.js                  → API Node.js/Express principale
-├── package.json            → Dépendances Node.js
-├── frontend/index.html     → Formulaire utilisateur
-├── terraform_templates/    → Templates Terraform
-│   ├── main.tf
-│   ├── variables.tf
-│   ├── outputs.tf
-│   └── install_minecraft.sh
-└── instances/              → Dossiers créés par utilisateur (VM personnalisée)
+Sécurité Commerciale : Protéger l'infrastructure de l'hébergeur (VPN, Firewall Azure) pour garantir la qualité de service (SLA).
 
- **Objectif technique**
+ Compétences Visées
+Architecture Hébergeur (ISP) : Conception d'une infrastructure capable de délivrer des services à la demande.
 
-Automatiser la création d’une VM et l’installation du serveur Minecraft.
+DevSecOps : Sécurisation d'une plateforme exposée (Gestion des secrets, Hachage mots de passe, Isolation réseau).
 
-Simplifier l’expérience utilisateur via un simple formulaire web.
+Développement Backend : Création d'une API RESTful Python capable de piloter le système d'exploitation (Docker SDK).
 
-Centraliser la gestion des serveurs (un serveur différent par utilisateur).
+Gestion de Données : Modélisation d'une base de données relationnelle (Clients / Produits / Instances).
 
-Rendre le processus reproductible grâce à Terraform (infrastructure as code).
+✅ Résultat Attendu
+À la fin du projet, la plateforme doit permettre :
 
- **Compétences visées**
+✅ La location instantanée : Un utilisateur clique sur "Créer", le serveur est prêt en quelques secondes.
 
-Administration système (création et gestion de VMs).
+✅ La gestion autonome : Le client peut démarrer, arrêter ou supprimer son serveur loué depuis son espace personnel.
 
-Automatisation avec Terraform.
+✅ La sécurité de l'hébergeur : L'infrastructure est protégée par un VPN et des règles strictes (Quotas, Validation API).
 
-Développement d’API avec Node.js/Express.
-
-Hébergement et gestion d’un service applicatif (Minecraft).
-
-Sauvegarde, restauration et supervision d’un service en ligne.
-
- **Résultat attendu**
-
-À la fin du projet, il faut que :
-✅ Le site web fonctionne et permette de créer une VM automatiquement.
-✅ Le serveur Minecraft soit opérationnel (connexion depuis le client).
-✅ Les fichiers Terraform et scripts soient personnalisés et fonctionnels.
-✅ Une documentation complète (5 écrits + oral) rende compte du projet.
-
-
+✅ L'isolation des clients : Chaque serveur loué est étanche et possède ses propres ressources et fichiers.
