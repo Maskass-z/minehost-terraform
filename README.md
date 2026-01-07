@@ -42,7 +42,7 @@ MINEHOST_CLEAN/
 ├── .env                  → Gestion sécurisée des secrets de l'infrastructure
 ├── Dockerfile            → Image du Panel de Gestion Web
 └── templates/            → Espace Client (Dashboard de gestion des locations)
-🧩 Objectifs Techniques
+ Objectifs Techniques
 Automatisation Totale : Supprimer toute intervention manuelle entre la commande du client et la livraison du serveur.
 
 Rentabilité des Ressources (Docker) : Utiliser des conteneurs plutôt que des VM pour maximiser le nombre de serveurs clients hébergés sur une même machine physique (Densification).
@@ -60,13 +60,13 @@ Développement Backend : Création d'une API RESTful Python capable de piloter l
 
 Gestion de Données : Modélisation d'une base de données relationnelle (Clients / Produits / Instances).
 
-✅ Résultat Attendu
+ Résultat Attendu
 À la fin du projet, la plateforme doit permettre :
 
-✅ La location instantanée : Un utilisateur clique sur "Créer", le serveur est prêt en quelques secondes.
+ La location instantanée : Un utilisateur clique sur "Créer", le serveur est prêt en quelques secondes.
 
-✅ La gestion autonome : Le client peut démarrer, arrêter ou supprimer son serveur loué depuis son espace personnel.
+ La gestion autonome : Le client peut démarrer, arrêter ou supprimer son serveur loué depuis son espace personnel.
 
-✅ La sécurité de l'hébergeur : L'infrastructure est protégée par un VPN et des règles strictes (Quotas, Validation API).
+ La sécurité de l'hébergeur : L'infrastructure est protégée par un VPN et des règles strictes (Quotas, Validation API).
 
-✅ L'isolation des clients : Chaque serveur loué est étanche et possède ses propres ressources et fichiers.
+ L'isolation des clients : Chaque serveur loué est étanche et possède ses propres ressources et fichiers.
