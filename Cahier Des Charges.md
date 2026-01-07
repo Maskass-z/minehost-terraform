@@ -302,7 +302,7 @@ Internet → [VPN Gateway X.509] → VNet 10.0.0.0/16
 
 ### 8.1. Matrice de Décision
 
-| Critère (Poids) | VMs+Docker ✅ | ACI Serverless | K8s AKS |
+| Critère (Poids) | VMs+Docker  | ACI Serverless | K8s AKS |
 |-----------------|--------------|----------------|---------|
 | **Sécurité** (30%) | 8/10 | 9/10 | 6/10 |
 | **Coûts** (25%) | **9/10** | 6/10 | 5/10 |
@@ -362,10 +362,10 @@ Internet → [VPN Gateway X.509] → VNet 10.0.0.0/16
 
 | Phase | Durée | Livrables | Critère Succès |
 |-------|-------|-----------|---------------|
-| **MVP** | S1-4 | API Flask + Docker + PostgreSQL + Auth | ✅ Créer serveur <60s + Auth OK |
-| **Hardening** | S5-6 | VPN OpenVPN + Key Vault + Rate Limit | ✅ 0 CVE critique (ZAP) + VPN OK |
-| **FinOps** | S7-8 | Auto-Shutdown RCON + Facturation Stripe | ✅ Auto-shutdown testé + Facturation précise |
-| **Prod** | S9 | Tests charge + Pentest externe + Doc | ✅ 1000 req/s + 0 CVE + DR <15min |
+| **MVP** | S1-4 | API Flask + Docker + PostgreSQL + Auth |  Créer serveur <60s + Auth OK |
+| **Hardening** | S5-6 | VPN OpenVPN + Key Vault + Rate Limit |  0 CVE critique (ZAP) + VPN OK |
+| **FinOps** | S7-8 | Auto-Shutdown RCON + Facturation Stripe |  Auto-shutdown testé + Facturation précise |
+| **Prod** | S9 | Tests charge + Pentest externe + Doc |  1000 req/s + 0 CVE + DR <15min |
 
 ---
 
@@ -490,11 +490,11 @@ terraform/
 
 | Critère | Section | Niveau |
 |---------|---------|--------|
-| **C23.1** (Collecte besoins) | §1.1 (Méthodologie 4 phases, 20 interviews, 34 réponses) | ✅ Pro |
-| **C23.2** (Objectifs fonctionnels) | §2.1-2.2 (3 User Stories détaillées) | ✅ Pro |
-| **C23.3** (Alignement besoins/contraintes) | §3.4 (Matrice traçabilité) | ✅ Pro |
-| **C24.1** (Risques ET opportunités) | §9 (5 risques + 3 opportunités chiffrées) | ✅ Pro |
-| **C24.2** (Justification choix) | §8 (Matrice décision + justifications) | ✅ Pro |
-| **C24.3** (Structuration CDC) | Executive Summary + Exigences numérotées | ✅ Pro |
+| **C23.1** (Collecte besoins) | §1.1 (Méthodologie 4 phases, 20 interviews, 34 réponses) |  Pro |
+| **C23.2** (Objectifs fonctionnels) | §2.1-2.2 (3 User Stories détaillées) |  Pro |
+| **C23.3** (Alignement besoins/contraintes) | §3.4 (Matrice traçabilité) |  Pro |
+| **C24.1** (Risques ET opportunités) | §9 (5 risques + 3 opportunités chiffrées) |  Pro |
+| **C24.2** (Justification choix) | §8 (Matrice décision + justifications) |  Pro |
+| **C24.3** (Structuration CDC) | Executive Summary + Exigences numérotées |  Pro |
 
 ---
