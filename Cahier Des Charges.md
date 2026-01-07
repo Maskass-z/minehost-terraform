@@ -2,10 +2,9 @@
 **PROJET MINEHOST : Infrastructure Cloud-Native Azure & Sécurité Offensive**
 
 **Projet** : Plateforme SaaS d'Hébergement de Serveurs de Jeux  
-**Date** : 07 Janvier 2026  
-**Version** : 2.1 (Architecture Finale)  
+**Date** : 07 Janvier 2026    
 **Cible** : Direction Technique, Équipe DevOps, Audit de Sécurité  
-**Classification** : CONFIDENTIEL
+
 
 ## SOMMAIRE
 
