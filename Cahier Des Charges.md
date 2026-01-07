@@ -4,6 +4,7 @@
 **Projet** : Plateforme SaaS d'Hébergement de Serveurs Minecraft  
 **Date** : 07 Janvier 2026  
 **Auteur** : Aydemir Alper, El Mensi Mehdi 
+
 **Cible** : Direction Technique, Équipe DevOps, Audit de Sécurité  
 
 ---
@@ -144,8 +145,8 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 > *"Je paie 15€/mois mais le serveur lag quand un voisin utilise trop de CPU"* - Admin expérimenté
 
 #### Phase 3 : Questionnaire quantitatif (Semaine 3)
-- Diffusion d'un questionnaire en ligne (Google Forms) auprès de 150 répondants
-- Taux de réponse : 68% (102 réponses exploitables)
+- Diffusion d'un questionnaire en ligne (Google Forms) auprès de 50 répondants
+- Taux de réponse : 68% (34 réponses exploitables)
 - Segmentation : 60% joueurs occasionnels, 30% communautés moyennes, 10% admins experts
 
 **Résultats statistiques clés** :
@@ -155,16 +156,8 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 - 87% accepteraient une connexion VPN pour plus de sécurité
 
 #### Phase 4 : Analyse technique (Semaine 4)
-- Audit de sécurité de 5 hébergeurs low-cost (pentests éthiques avec autorisation)
-- Benchmarks de performance (latence, temps de provisioning)
-- Analyse des coûts d'infrastructure (AWS, Azure, GCP)
 
-**Résultats Audit** :
-- 3/5 hébergeurs vulnérables aux injections SQL sur leur panel admin
-- 4/5 utilisent des mots de passe FTP en clair
-- Temps de provisioning moyen : 8-15 minutes (vs notre objectif < 60s)
-
-### 1.2. Analyse du Marché et Concurrence
+### 1.1. Analyse du Marché et Concurrence
 
 #### Taille du Marché
 - **Marché global de l'hébergement de jeux** : 6,5 Mds USD en 2025 (Source : Grand View Research)
@@ -186,13 +179,13 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 
 **Notre différenciation** :
 1. **Sécurité Premium** : Zero Trust + VPN obligatoire (unique sur le marché)
-2. **Provisioning Ultra-Rapide** : < 60s vs 5-15 min chez les concurrents
+2. **Provisioning Ultra-Rapide** : < 1-2mins vs 5-15 min chez les concurrents
 3. **Isolation Garantie** : Docker + NSG (pas de "Noisy Neighbor")
 4. **Simplicité** : Interface Web (pas de SSH/CLI requis)
 
 **Segment cible prioritaire** : Communautés moyennes (20-100 joueurs) prêtes à payer 10-15€/mois pour la qualité.
 
-### 1.3. Identification des Parties Prenantes
+### 1.2. Identification des Parties Prenantes
 
 | Partie Prenante | Rôle | Besoins/Attentes | Influence | Pouvoir |
 |-----------------|------|------------------|-----------|---------|
@@ -210,13 +203,13 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 - **Direction** : Points mensuels + dashboards ROI en temps réel
 - **RSSI** : Pentests trimestriels + certifications (ISO 27001 visée année 2)
 
-### 1.4. Synthèse des Besoins Recueillis
+### 1.3. Synthèse des Besoins Recueillis
 
 #### Besoins Métier (Business)
 - **BUS-001** : Proposer une offre plus sécurisée que les concurrents low-cost
 - **BUS-002** : Atteindre une marge brute de 45% minimum
 - **BUS-003** : Scaler jusqu'à 1000 serveurs actifs en 12 mois
-- **BUS-004** : Temps de provisioning < 60 secondes (avantage concurrentiel)
+- **BUS-004** : Temps de provisioning < 1-2mins (avantage concurrentiel)
 
 #### Besoins Utilisateurs (User Needs)
 - **USR-001** : Interface Web simple sans connaissance technique requise
@@ -274,9 +267,9 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 - Le mot de passe est trop faible → Message "Mot de passe insuffisamment sécurisé"
 
 **Critères d'acceptation** :
-- ✅ Mot de passe haché en Scrypt (pas en clair)
-- ✅ Email de confirmation envoyé en < 5 secondes
-- ✅ Validation RGPD (case à cocher obligatoire)
+-  Mot de passe haché en Scrypt (pas en clair)
+-  Email de confirmation envoyé en < 5 secondes
+-  Validation RGPD (case à cocher obligatoire)
 
 ---
 
@@ -309,9 +302,9 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 - Provisioning échoue → Retry automatique, support contacté
 
 **Critères d'acceptation** :
-- ✅ Provisioning réussi en < 60 secondes (P95)
-- ✅ Serveur accessible via VPN en < 2 minutes
-- ✅ Logs visibles en temps réel pendant la création
+-  Provisioning réussi en < 2 minutess (P95)
+-  Serveur accessible via VPN en < 2 minutes
+-  Logs visibles en temps réel pendant la création
 
 ---
 
@@ -327,20 +320,18 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 1. L'utilisateur accède à la page de son serveur
 2. Statut actuel : "En cours d'exécution" (bouton vert)
 3. Il clique sur "Arrêter"
-4. Popup de confirmation : "Êtes-vous sûr ? Les joueurs connectés seront déconnectés"
-5. Il confirme
-6. Le conteneur Docker s'arrête gracieusement en ~10 secondes
-7. Statut : "Arrêté" (bouton gris)
-8. Facturation s'arrête immédiatement
+4. Le conteneur Docker s'arrête gracieusement en ~10 secondes
+5. Statut : "Arrêté" (bouton gris)
+6. Facturation s'arrête immédiatement
 
 **Scénario alternatif** :
 - Joueurs connectés → Avertissement affiché avant arrêt
 - Arrêt déjà en cours → Bouton désactivé
 
 **Critères d'acceptation** :
-- ✅ Sauvegarde automatique du monde avant arrêt
-- ✅ Facturation s'arrête à la seconde près
-- ✅ Redémarrage possible en < 30 secondes
+-  Sauvegarde automatique du monde avant arrêt
+-  Facturation s'arrête à la seconde près
+-  Redémarrage possible en < 30 secondes
 
 ---
 
@@ -366,9 +357,9 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 5. Bouton "Télécharger les logs" (export en .txt)
 
 **Critères d'acceptation** :
-- ✅ Latence WebSocket < 500ms
-- ✅ Rétention des logs : 7 jours
-- ✅ Pas de fuite de données sensibles dans les logs
+-  Latence WebSocket < 500ms
+-  Rétention des logs : 7 jours
+-  Pas de fuite de données sensibles dans les logs
 
 ---
 
@@ -389,9 +380,9 @@ MineHost est une plateforme d'hébergement automatisée (PaaS/SaaS) permettant d
 6. Redirection vers le dashboard : "Serveur supprimé avec succès"
 
 **Critères d'acceptation** :
-- ✅ Double confirmation obligatoire
-- ✅ Impossible de récupérer les données après suppression
-- ✅ Facturation s'arrête immédiatement
+-  Double confirmation obligatoire
+-  Impossible de récupérer les données après suppression
+- Facturation s'arrête immédiatement
 
 ---
 
@@ -515,7 +506,6 @@ Cette matrice garantit que chaque besoin exprimé a une solution technique assoc
 **Framework Web** : Flask 3.0.0  
 **ORM** : SQLAlchemy 2.0 (requêtes paramétrées anti-injection)  
 **Base de données** : PostgreSQL 15 (Azure Database for PostgreSQL)  
-**Frontend** : Vue.js 3 + Tailwind CSS  
 **Authentification** : Flask-Login + Scrypt (hashing)  
 **Rate Limiting** : Flask-Limiter + Redis  
 **WebSocket** : Flask-SocketIO (logs temps réel)  
@@ -526,12 +516,10 @@ Cette matrice garantit que chaque besoin exprimé a une solution technique assoc
 L'API Flask orchestre les conteneurs Docker sur des VMs Azure pré-provisionnées :
 
 ```python
-# Workflow simplifié de création de serveur
 import docker
 import uuid
 from flask import request, jsonify
 
-# Connexion aux VMs Docker (pool de VMs disponibles)
 docker_clients = {
     "vm-host-01": docker.DockerClient(base_url="tcp://10.0.2.10:2375"),
     "vm-host-02": docker.DockerClient(base_url="tcp://10.0.2.11:2375"),
@@ -551,23 +539,18 @@ def create_server(user_id, server_name, ram_size):
         dict: Statut de création + métadonnées
     """
     
-    # 1. Validation sécurité (regex strict)
     if not re.match(r"^[a-z0-9-]{3,20}$", server_name):
         raise SecurityException("Nom de serveur invalide (Risque Injection)")
     
-    # 2. Vérification Quota utilisateur
     if get_user_server_count(user_id) >= 5:
         raise QuotaExceededException("Limite de 5 serveurs atteinte")
     
-    # 3. Sélection VM avec charge la plus faible
     target_vm = select_least_loaded_vm(docker_clients)
     client = docker_clients[target_vm]
     
-    # 4. Création volume Azure Files (persistance)
     volume_name = f"vol-{user_id}-{uuid.uuid4().hex[:8]}"
     azure_storage.create_file_share(share_name=volume_name, quota=10)
     
-    # 5. Déploiement conteneur Docker
     container = client.containers.run(
         image="itzg/minecraft-server:latest",
         name=f"{user_id}-{server_name}",
@@ -575,24 +558,22 @@ def create_server(user_id, server_name, ram_size):
         environment={
             "EULA": "TRUE",
             "VERSION": "1.20.4",
-            "MAX_MEMORY": f"{ram_size-1}G"  # Laisser 1GB pour l'OS
+            "MAX_MEMORY": f"{ram_size-1}G"  
         },
         volumes={
             volume_name: {"bind": "/data", "mode": "rw"}
         },
-        ports={"25565/tcp": None},  # Port dynamique attribué
+        ports={"25565/tcp": None},  
         mem_limit=f"{ram_size}g",
-        cpu_quota=200000,  # 2 vCPU (200% d'un core)
+        cpu_quota=200000,  
         restart_policy={"Name": "unless-stopped"},
-        network_mode="minecraft-net",  # Réseau privé VPN
-        user="1000:1000"  # Non-root
+        network_mode="minecraft-net",  
+        user="1000:1000"  
     )
     
-    # 6. Récupération IP privée dans le VNet
     container.reload()
     private_ip = container.attrs['NetworkSettings']['Networks']['minecraft-net']['IPAddress']
     
-    # 7. Enregistrement en BDD
     db.session.add(Server(
         owner_id=user_id,
         name=server_name,
@@ -605,7 +586,6 @@ def create_server(user_id, server_name, ram_size):
     ))
     db.session.commit()
     
-    # 8. Retour au client
     return {
         "status": "running",
         "private_ip": f"{private_ip}:25565",
@@ -628,12 +608,10 @@ def select_least_loaded_vm(docker_clients):
 
 - **Input Validation** : Regex strict `^[a-z0-9-]{3,20}$` sur tous les champs utilisateurs
 - **CSRF Protection** : Jetons anti-CSRF sur toutes les actions sensibles (POST/PUT/DELETE)
-- **XSS Protection** : Auto-escape Jinja2 + Content-Security-Policy headers
-- **SQL Injection** : ORM SQLAlchemy (pas de requêtes SQL brutes)
 - **Command Injection** : Utilisation du Docker SDK Python (pas d'appels `os.system()`)
 - **BOLA/IDOR** : Vérification systématique `if server.owner_id != current_user.id: abort(403)`
 - **Rate Limiting** : 10 req/s par IP, 5 tentatives de login max/min
-- **Logging Sécurisé** : Pas de secrets loggés, corrélation d'IDs pour forensics
+- **Logging Sécurisé** : Pas de secrets loggés
 
 ---
 
@@ -642,22 +620,22 @@ def select_least_loaded_vm(docker_clients):
 ### 5.1. Choix du Compute : VMs Azure + Docker
 
 **Architecture** :
-- **VMs pré-provisionnées** : 3 VMs Ubuntu 24.04 LTS (taille Standard_D4s_v3 : 4 vCPU, 16GB RAM)
+- **VMs pré-provisionnées** : 3 VMs Ubuntu 24.04 LTS (taille Standard_D4s_v3 : 4 vCPU, 4GB RAM)
 - **Docker Engine** installé sur chaque VM avec API Docker exposée sur le VNet privé
 - **Mutualisation** : Chaque VM héberge 10-15 conteneurs Minecraft (isolation Docker)
 
 **Avantages de cette approche** :
-- ✅ **Coût optimisé** : VMs 24/7 mutualisées vs provisioning à la demande
-- ✅ **Provisioning ultra-rapide** : Création conteneur = 5-10s (image déjà pullée sur VM)
-- ✅ **Isolation Docker** : Namespaces Linux (PID, NET, MNT, IPC) + cgroups (CPU/RAM)
-- ✅ **Scalabilité** : Ajout de VMs selon la charge (Terraform + Autoscaling)
+-  **Coût optimisé** : VMs 24/7 mutualisées vs provisioning à la demande
+-  **Provisioning ultra-rapide** : Création conteneur = 5-10s (image déjà pullée sur VM)
+-  **Isolation Docker** : Namespaces Linux (PID, NET, MNT, IPC) + cgroups (CPU/RAM)
+-  **Scalabilité** : Ajout de VMs selon la charge (Terraform + Autoscaling)
 
 **Configuration VM type** :
 ```yaml
 VM Specification:
   Size: Standard_D4s_v3
   vCPU: 4
-  RAM: 16GB
+  RAM: 4GB
   OS: Ubuntu 24.04 LTS
   Disk: Premium SSD 128GB (OS) + Azure Files (data)
   Network: VNet privé (10.0.2.0/24)
@@ -666,7 +644,7 @@ VM Specification:
 ```
 
 **Calcul de Densité** :
-- Serveur Minecraft 2GB RAM → ~12 serveurs par VM (16GB / 1.3 = 12 avec overhead OS)
+- Serveur Minecraft 2GB RAM → ~12 serveurs par VM (4GB / 1.3 = 12 avec overhead OS)
 - Serveur Minecraft 4GB RAM → ~3 serveurs par VM
 - Mix réaliste : 70% 2GB + 30% 4GB → ~10 serveurs/VM en moyenne
 
@@ -765,9 +743,7 @@ Internet
 2. **Authentification** : Certificats X.509 uniques par utilisateur (pas de mot de passe)
 3. **Génération certificats** : 
    ```bash
-   # À chaque création de compte, génération d'un certificat client
    easyrsa build-client-full user123 nopass
-   # Export du fichier .ovpn personnalisé
    ```
 4. **Révocation** : Si compromission, révocation du certificat via CRL (Certificate Revocation List)
 5. **Logging** : Toutes les connexions VPN loggées (IP source, timestamp, user, durée)
@@ -780,9 +756,9 @@ Internet
 5. Accès au serveur Minecraft via IP privée (ex: `10.0.2.25:25565`)
 
 **Bénéfice** :
-- ❌ Attaques DDoS Layer 3/4 impossible (pas d'IP publique cible)
-- ❌ Scans de ports automatisés inefficaces
-- ✅ Audit trail complet (qui s'est connecté et quand)
+-  Pas d'attaques DDoS Layer 3/4 impossible (pas d'IP publique cible)
+-  Pas de scans de ports automatisés inefficaces
+-  Audit trail complet (qui s'est connecté et quand)
 
 ### 6.2. Durcissement des Conteneurs (Docker Hardening)
 
@@ -799,17 +775,14 @@ Conformément au **CIS Docker Benchmark v1.6.0** :
 
 **Scan de Vulnérabilités** :
 ```bash
-# Avant déploiement, scan Trivy de l'image
 trivy image --severity HIGH,CRITICAL itzg/minecraft-server:latest
 
-# Si CVE critique détectée (CVSS > 9.0) → Blocage déploiement
 ```
 
 ### 6.3. Gestion des Secrets et Identités
 
 - **Azure Key Vault** : Coffre-fort pour secrets (mots de passe BDD, clés API, certificats VPN)
 - **Managed Identity** : VMs Azure authentifiées automatiquement (pas de clé API stockée)
-- **Rotation automatique** : Secrets régénérés tous les 90 jours
 - **Pas de secrets en dur** : Variables d'environnement injectées au démarrage
 
 **Exemple Récupération Secret** :
@@ -817,11 +790,9 @@ trivy image --severity HIGH,CRITICAL itzg/minecraft-server:latest
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 
-# Authentification automatique via Managed Identity
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url="https://minehost-vault.vault.azure.net/", credential=credential)
 
-# Récupération secret PostgreSQL
 db_password = client.get_secret("postgresql-password").value
 ```
 
@@ -834,7 +805,7 @@ db_password = client.get_secret("postgresql-password").value
 **Stratégie de Mutualisation** :
 
 Au lieu de déployer une VM par serveur (coût prohibitif), nous mutualisons :
-- **3 VMs Azure** (Standard_D4s_v3 : 4 vCPU, 16GB RAM) → ~30 serveurs Minecraft au total
+- **3 VMs Azure** (Standard_D4s_v3 : 4 vCPU, 4GB RAM) → ~30 serveurs Minecraft au total
 - **Coût VM** : 0.196€/h × 3 VMs × 730h/mois = **429€/mois** (VMs 24/7)
 - **Coût par serveur** : 429€ / 30 serveurs = **14.3€/serveur/mois** (si tous actifs 24/7)
 
@@ -868,38 +839,29 @@ def auto_shutdown_check(server_id):
     server = db.session.get(Server, server_id)
     
     try:
-        # Connexion RCON au serveur Minecraft
         with mcrcon.MCRcon(server.private_ip, "rcon_password") as mcr:
-            response = mcr.command("list")  # Commande "list" retourne le nb de joueurs
+            response = mcr.command("list")  
             
-        # Parsing de la réponse (ex: "There are 0 of a max of 20 players online")
         player_count = int(response.split()[2])
         
         if player_count == 0:
-            # Incrémenter le compteur d'inactivité
             server.idle_minutes += 5
             db.session.commit()
             
-            if server.idle_minutes >= 15:  # 15 minutes sans joueur
-                # Arrêt du conteneur Docker
+            if server.idle_minutes >= 15: 
                 docker_client = docker.DockerClient(base_url=f"tcp://{server.vm_host}:2375")
                 container = docker_client.containers.get(server.container_id)
                 
-                # Sauvegarde du monde avant arrêt
                 container.exec_run("rcon-cli save-all")
                 
-                # Arrêt gracieux
                 container.stop(timeout=30)
                 
-                # Mise à jour BDD
                 server.status = "stopped"
                 server.stopped_at = datetime.utcnow()
                 db.session.commit()
                 
-                # Facturation s'arrête ici (calcul durée = stopped_at - started_at)
                 
         else:
-            # Reset compteur si joueurs présents
             server.idle_minutes = 0
             db.session.commit()
             
@@ -927,9 +889,9 @@ def auto_shutdown_check(server_id):
 **Décision** : **VMs Azure + Docker** pour le meilleur ratio coût/performance/simplicité.
 
 **Justification détaillée** :
-- ✅ **Provisioning ultra-rapide** : Docker crée un conteneur en 5-10s (image déjà sur la VM) vs 30-45s pour ACI
-- ✅ **Coût optimisé** : Mutualisation 10-15 serveurs/VM vs ACI qui facture chaque conteneur individuellement
-- ✅ **Simplicité opérationnelle** : Pas de cluster K8s à maintenir (vs AKS qui nécessite des SREs dédiés)
+-  **Provisioning ultra-rapide** : Docker crée un conteneur en 5-10s (image déjà sur la VM) vs 30-45s pour ACI
+-  **Coût optimisé** : Mutualisation 10-15 serveurs/VM vs ACI qui facture chaque conteneur individuellement
+-  **Simplicité opérationnelle** : Pas de cluster K8s à maintenir (vs AKS qui nécessite des SREs dédiés)
 - ⚠️ **Compromis** : VMs 24/7 (coût fixe) mais largement compensé par la mutualisation
 
 ---
@@ -945,9 +907,9 @@ def auto_shutdown_check(server_id):
 **Décision** : **VPN Obligatoire** pour la sécurité maximale (acceptation de la friction utilisateur).
 
 **Justification détaillée** :
-- ✅ **Sécurité supérieure** : Aucune IP publique = 0 scan, 0 DDoS opportuniste
-- ✅ **Différenciation marché** : Aucun concurrent n'offre ce niveau de sécurité
-- ✅ **Audit** : Logs VPN permettent de tracer qui se connecte et quand
+-  **Sécurité supérieure** : Aucune IP publique = 0 scan, 0 DDoS opportuniste
+-  **Différenciation marché** : Aucun concurrent n'offre ce niveau de sécurité
+-  **Audit** : Logs VPN permettent de tracer qui se connecte et quand
 - ⚠️ **Friction** : Utilisateurs doivent installer OpenVPN (compensé par tutoriels vidéo)
 
 ---
@@ -975,7 +937,7 @@ Méthodologie : Pondération des critères selon l'importance business.
 | **Simplicité** (Ops) | 20% | **9/10** (Docker standard) | 9/10 (Serverless) | 4/10 (K8s complexe) |
 | **Performance** (Provisioning) | 15% | **9/10** (5-10s) | 7/10 (30-45s cold start) | 8/10 (Rapide) |
 | **Scalabilité** | 10% | 7/10 (Ajout VMs manuel) | 9/10 (Auto-scale natif) | 10/10 (K8s best-in-class) |
-| **TOTAL PONDÉRÉ** | - | **8.45/10** ✅ | 7.75/10 | 5.8/10 |
+| **TOTAL PONDÉRÉ** | - | **8.45/10**  | 7.75/10 | 5.8/10 |
 
 **Conclusion** : VMs + Docker obtient le meilleur score grâce à l'optimisation des coûts (mutualisation) et la simplicité opérationnelle.
 
@@ -1112,21 +1074,20 @@ Méthodologie : Pondération des critères selon l'importance business.
 
 | Phase | Durée | Sprint | Livrables Techniques | Responsable | Critères de Succès | Jalon |
 |-------|-------|--------|---------------------|-------------|-------------------|-------|
-| **Phase 1 : MVP** | Semaines 1-4 | Sprint 1-2 | - API Flask CRUD serveurs<br>- Docker orchestration sur VMs<br>- PostgreSQL setup<br>- Auth Scrypt<br>- Dashboard Vue.js | Lead Dev | ✅ Créer 1 serveur en < 60s<br>✅ Auth fonctionnelle<br>✅ CRUD complet | **J+28** : Demo interne |
-| **Phase 2 : Hardening** | Semaines 5-6 | Sprint 3 | - **VPN Gateway OpenVPN**<br>- **Génération certificats clients**<br>- Azure Key Vault intégration<br>- Input validation (regex)<br>- Rate Limiting (Flask-Limiter)<br>- HTTPS (Let's Encrypt) | DevSecOps | ✅ 0 vulnérabilité critique (ZAP)<br>✅ VPN fonctionnel<br>✅ Secrets externalisés | **J+42** : Audit sécurité intermédiaire |
-| **Phase 3 : FinOps** | Semaines 7-8 | Sprint 4 | - **Auto-Shutdown RCON Watchdog**<br>- Monitoring charge VMs<br>- Autoscaling Terraform<br>- Facturation Stripe<br>- Dashboard conso | SRE | ✅ Auto-shutdown testé<br>✅ Monitoring charge VMs<br>✅ Facturation précise | **J+56** : Beta privée (50 users) |
-| **Phase 4 : Production** | Semaine 9 | Sprint 5 | - Tests de charge (Locust 1000 users)<br>- Pentest externe<br>- Disaster Recovery test<br>- Documentation complète<br>- Formation support | QA + PenTester | ✅ 1000 req/s soutenus<br>✅ 0 CVE critique<br>✅ Pentest passé<br>✅ DR < 15min | **J+63** : 🚀 **GO LIVE** |
+| **Phase 1 : MVP** | Semaines 1-4 | Sprint 1-2 | - API Flask CRUD serveurs<br>- Docker orchestration sur VMs<br>- PostgreSQL setup<br>- Auth Scrypt<br>- Dashboard Vue.js | Lead Dev | ✅ Créer 1 serveur en < 60s<br> Auth fonctionnelle<br> CRUD complet | **J+28** : Demo interne |
+| **Phase 2 : Hardening** | Semaines 5-6 | Sprint 3 | - **VPN Gateway OpenVPN**<br>- **Génération certificats clients**<br>- Azure Key Vault intégration<br>- Input validation (regex)<br>- Rate Limiting (Flask-Limiter)<br>- HTTPS (Let's Encrypt) | DevSecOps |  0 vulnérabilité critique (ZAP)<br> VPN fonctionnel<br> Secrets externalisés | **J+42** : Audit sécurité intermédiaire |
+| **Phase 3 : FinOps** | Semaines 7-8 | Sprint 4 | - **Auto-Shutdown RCON Watchdog**<br>- Monitoring charge VMs<br>- Autoscaling Terraform<br>- Facturation Stripe<br>- Dashboard conso | SRE |  Auto-shutdown testé<br> Monitoring charge VMs<br> Facturation précise | **J+56** : Beta privée (50 users) |
+| **Phase 4 : Production** | Semaine 9 | Sprint 5 | - Tests de charge (Locust 1000 users)<br>- Pentest externe<br>- Disaster Recovery test<br>- Documentation complète<br>- Formation support | QA + PenTester |  1000 req/s soutenus<br> 0 CVE critique<br> Pentest passé<br> DR < 15min | **J+63** :  **GO LIVE** |
 
 ### Diagramme de Gantt Simplifié
 
 ```
 Semaine:  1  2  3  4  5  6  7  8  9
-Phase 1:  [████████████████]
-Phase 2:                [██████████] ← VPN implémenté ici
-Phase 3:                      [██████████] ← Auto-shutdown ici
-Phase 4:                            [████]
-Tests:                              [████]
-Go-Live:                                 🚀
+Phase 1:  [----------------]
+Phase 2:                [----------] ← VPN implémenté ici
+Phase 3:                      [----------] ← Auto-shutdown ici
+Phase 4:                            [----]
+Tests:                              [----]
 ```
 
 ---
@@ -1170,7 +1131,7 @@ Go-Live:                                 🚀
 
 | Composant | Calcul Détaillé | Coût Mensuel |
 |-----------|-----------------|--------------|
-| **Compute (VMs 24/7)** | 3 VMs Standard_D4s_v3 (4 vCPU, 16GB) × 0.196€/h × 730h | **429 €** |
+| **Compute (VMs 24/7)** | 3 VMs Standard_D4s_v3 (4 vCPU, 4GB) × 0.196€/h × 730h | **429 €** |
 | **Stockage (Azure Files Premium)** | 200 GB (40 serveurs × 5GB moyens) × 0.225€/GB | **45 €** |
 | **Base de Données (PostgreSQL)** | Instance Burstable B2s (2 vCPU, 4GB RAM) | **30 €** |
 | **Réseau VPN** | VPN Gateway Basic (P2S + S2S) : 30€<br>Bande passante sortante (500GB @ 0.08€/GB) : 40€ | **70 €** |
@@ -1228,10 +1189,10 @@ Go-Live:                                 🚀
 - **Outil** : Bandit (Python), SonarQube
 - **Fréquence** : À chaque commit (CI/CD)
 - **Critères de blocage** : 
-  - ❌ CVE critique (CVSS > 9.0)
-  - ❌ Secrets hard-codés
-  - ❌ Injection SQL (requêtes non-paramétrées)
-  - ❌ Command Injection (os.system, subprocess sans validation)
+  -  CVE critique (CVSS > 9.0)
+  -  Secrets hard-codés
+  -  Injection SQL (requêtes non-paramétrées)
+  -  Command Injection (os.system, subprocess sans validation)
 
 #### DAST (Dynamic Application Security Testing)
 - **Outil** : OWASP ZAP
@@ -1265,7 +1226,6 @@ Go-Live:                                 🚀
 
 #### Test 1 : Création Massive
 ```python
-# Locust scenario
 from locust import HttpUser, task, between
 import random, string
 
@@ -1280,16 +1240,14 @@ class MinehostUser(HttpUser):
             "ram": random.choice([2, 4, 8])
         })
 
-# Exécution: 1000 utilisateurs simultanés
-# locust -f loadtest.py --users 1000 --spawn-rate 10 --host https://api.minehost.com
 ```
 
 **Objectifs** :
-- ✅ 1000 req/s soutenus
-- ✅ Taux d'erreur < 1%
-- ✅ Latence P95 < 500ms
-- ✅ Aucune exception non catchée
-- ✅ Charge VMs < 80% CPU
+-  1000 req/s soutenus
+-  Taux d'erreur < 1%
+-  Latence P95 < 500ms
+-  Aucune exception non catchée
+-  Charge VMs < 80% CPU
 
 #### Test 2 : Stress Test
 - Montée en charge progressive : 0 → 2000 users en 10 min
@@ -1305,40 +1263,37 @@ class MinehostUser(HttpUser):
 
 #### Scénario 1 : Kill Aléatoire de Conteneurs
 ```bash
-# Arrêt brutal de 20% des conteneurs Docker sur une VM
 ssh vm-host-01 "docker ps -q | shuf -n 3 | xargs -I {} docker kill {}"
 ```
 **Validation** :
-- ✅ Redémarrage auto < 30s (restart policy unless-stopped)
-- ✅ Aucune perte de données (Azure Files)
-- ✅ Notification utilisateur via email
+-  Redémarrage auto < 30s (restart policy unless-stopped)
+-  Aucune perte de données (Azure Files)
+-  Notification utilisateur via email
 
 #### Scénario 2 : Saturation CPU d'une VM
 ```bash
-# Stress CPU à 100% pendant 5 minutes
 ssh vm-host-01 "stress-ng --cpu 4 --timeout 300s"
 ```
 **Validation** :
-- ✅ Les autres VMs continuent de fonctionner normalement
-- ✅ Nouveaux serveurs créés sur VMs moins chargées
-- ✅ Alert monitoring déclenchée
+-  Les autres VMs continuent de fonctionner normalement
+-  Nouveaux serveurs créés sur VMs moins chargées
+-  Alert monitoring déclenchée
 
 #### Scénario 3 : Perte Connexion Azure Files
 ```bash
-# Démonter le volume Azure Files pendant 60s
 ssh vm-host-01 "umount /mnt/azurefiles && sleep 60 && mount /mnt/azurefiles"
 ```
 **Validation** :
-- ✅ Conteneurs passent en "unhealthy" mais ne crashent pas
-- ✅ Reconnexion automatique après restauration
-- ✅ Aucune corruption de données (SMB robuste)
+-  Conteneurs passent en "unhealthy" mais ne crashent pas
+-  Reconnexion automatique après restauration
+-  Aucune corruption de données (SMB robuste)
 
 #### Scénario 4 : Panne Région Azure France Central
 **Simulation** : Arrêt manuel de toutes les VMs + BDD
 **Validation** : Plan Disaster Recovery (voir section 15.3)
-- ✅ Bascule sur North Europe en < 15 min
-- ✅ Données restaurées depuis backup
-- ✅ Service rétabli
+-  Bascule sur North Europe en < 15 min
+-  Données restaurées depuis backup
+-  Service rétabli
 
 **Fréquence** : Tests Chaos trimestriels en pré-production
 
@@ -1399,14 +1354,12 @@ ssh vm-host-01 "umount /mnt/azurefiles && sleep 60 && mount /mnt/azurefiles"
    
 2. **Bascule DNS** (T+2 min) : 
    ```bash
-   # Modifier DNS api.minehost.com pour pointer vers North Europe
    az network dns record-set a update --resource-group dns-rg \
      --zone-name minehost.com --name api --set arecords[0].ipv4Address=<IP_NORTH_EUROPE>
    ```
 
 3. **Redéploiement Infrastructure** (T+5 min) :
    ```bash
-   # Terraform redéploie VMs + VPN + BDD en North Europe
    cd terraform/
    terraform apply -var="primary_region=northeurope" -auto-approve
    ```
@@ -1461,7 +1414,6 @@ terraform/
 
 **Module Terraform : VMs Docker** :
 ```hcl
-# modules/compute/main.tf
 resource "azurerm_linux_virtual_machine" "docker_host" {
   count               = var.vm_count
   name                = "vm-docker-host-${count.index + 1}"
@@ -1491,7 +1443,6 @@ resource "azurerm_linux_virtual_machine" "docker_host" {
     azurerm_network_interface.docker_host[count.index].id
   ]
   
-  # Installation Docker via cloud-init
   custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml", {
     docker_api_port = 2375
   }))
@@ -1500,7 +1451,6 @@ resource "azurerm_linux_virtual_machine" "docker_host" {
 
 **Cloud-Init Script** (installation Docker automatique) :
 ```yaml
-# modules/compute/cloud-init.yaml
 #cloud-config
 package_update: true
 package_upgrade: true
@@ -1513,18 +1463,14 @@ packages:
   - lsb-release
 
 runcmd:
-  # Installation Docker Engine
   - curl -fsSL https://get.docker.com -o get-docker.sh
   - sh get-docker.sh
   
-  # Configuration Docker API (écouteur sur VNet privé uniquement)
   - echo '{"hosts": ["unix:///var/run/docker.sock", "tcp://0.0.0.0:2375"]}' > /etc/docker/daemon.json
   - systemctl restart docker
   
-  # Pull image Minecraft (pour provisioning rapide)
   - docker pull itzg/minecraft-server:latest
   
-  # Installation monitoring agent
   - wget https://aka.ms/InstallAzureMonitorLinuxAgent && sudo bash InstallAzureMonitorLinuxAgent
 ```
 
@@ -1564,10 +1510,10 @@ jobs:
 ```
 
 **Bénéfices** :
-- ✅ Déploiement reproductible (dev = staging = prod)
-- ✅ Versioning de l'infrastructure (Git)
-- ✅ Disaster Recovery accéléré (1 commande `terraform apply`)
-- ✅ Audit trail (qui a modifié quoi et quand)
+-  Déploiement reproductible (dev = staging = prod)
+-  Versioning de l'infrastructure (Git)
+-  Disaster Recovery accéléré (1 commande `terraform apply`)
+   Audit trail (qui a modifié quoi et quand)
 
 ### 16.2. Monitoring et Observabilité
 
@@ -1638,10 +1584,9 @@ ContainerInventory
 
 # ANNEXES
 
-## ANNEXE A : Exemple de Code API (Pseudocode Complet)
+## ANNEXE A : Exemple de Code API 
 
 ```python
-# Fichier: app.py (Flask API)
 from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 import docker
@@ -1651,7 +1596,6 @@ import uuid
 app = Flask(__name__)
 limiter = Limiter(app, key_func=lambda: request.remote_addr)
 
-# Pool de clients Docker (connexion aux VMs)
 docker_clients = {
     "vm-host-01": docker.DockerClient(base_url="tcp://10.0.2.10:2375"),
     "vm-host-02": docker.DockerClient(base_url="tcp://10.0.2.11:2375"),
@@ -1663,12 +1607,10 @@ docker_clients = {
 def create_server():
     """Endpoint de création de serveur Minecraft"""
     
-    # 1. Authentification (vérifier JWT token)
     user_id = get_current_user_id()
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 401
     
-    # 2. Validation des inputs (Anti-Injection)
     server_name = request.json.get('name')
     if not re.match(r'^[a-z0-9-]{3,20}$', server_name):
         return jsonify({"error": "Nom invalide (a-z0-9- uniquement)"}), 400
@@ -1677,21 +1619,16 @@ def create_server():
     if ram_size not in [2, 4, 8]:
         return jsonify({"error": "RAM doit être 2, 4 ou 8 GB"}), 400
     
-    # 3. Vérification Quota
     if count_user_servers(user_id) >= 5:
         return jsonify({"error": "Limite de 5 serveurs atteinte"}), 403
     
-    # 4. Sélection VM avec charge la plus faible
     target_vm = select_least_loaded_vm(docker_clients)
     client = docker_clients[target_vm]
     
-    # 5. Génération identifiants uniques
     volume_name = f"vol-{user_id}-{uuid.uuid4().hex[:8]}"
     
-    # 6. Création volume Azure Files (Persistance)
     azure_storage.create_file_share(share_name=volume_name, quota=10)
     
-    # 7. Déploiement conteneur Docker
     container = client.containers.run(
         image="itzg/minecraft-server:latest",
         name=f"{user_id}-{server_name}",
@@ -1704,22 +1641,20 @@ def create_server():
         volumes={
             f"/mnt/azurefiles/{volume_name}": {"bind": "/data", "mode": "rw"}
         },
-        ports={"25565/tcp": None},  # Port dynamique
+        ports={"25565/tcp": None}, 
         mem_limit=f"{ram_size}g",
-        cpu_quota=200000,  # 2 vCPU
+        cpu_quota=200000,  
         restart_policy={"Name": "unless-stopped"},
         network_mode="minecraft-net",
-        user="1000:1000",  # Non-root
+        user="1000:1000",  
         cap_drop=["ALL"],
         cap_add=["NET_BIND_SERVICE"],
         security_opt=["no-new-privileges"]
     )
     
-    # 8. Récupération IP privée
     container.reload()
     private_ip = container.attrs['NetworkSettings']['Networks']['minecraft-net']['IPAddress']
     
-    # 9. Enregistrement en BDD
     db.session.add(Server(
         owner_id=user_id,
         name=server_name,
@@ -1732,7 +1667,6 @@ def create_server():
     ))
     db.session.commit()
     
-    # 10. Retour au client
     return jsonify({
         "status": "running",
         "private_ip": f"{private_ip}:25565",
@@ -1804,60 +1738,3 @@ def select_least_loaded_vm(docker_clients):
 - **Terraform Azure Provider** : https://registry.terraform.io/providers/hashicorp/azurerm/
 - **OpenVPN** : https://openvpn.net/community-resources/
 
----
-
-## 📝 HISTORIQUE DES VERSIONS
-
-| Version | Date | Auteur | Modifications |
-|---------|------|--------|---------------|
-| 1.0 | 05/01/2026 | Équipe Technique | Version initiale - Architecture de base |
-| 1.5 | 06/01/2026 | DevSecOps Lead | Ajout KPIs + Roadmap + Budget |
-| 2.0 | 07/01/2026 | Chef de Projet | Executive Summary + Section Maintenance |
-| 2.1 | 07/01/2026 | [Nom Prénom Étudiant] | Version optimisée notation : Méthodologie + User Stories + Traçabilité + Opportunités |
-| **2.2** | **07/01/2026** | **[Nom Prénom Étudiant]** | **Version Projet Réel : VMs Azure + Docker (au lieu d'ACI Serverless), VPN clients maintenu, Architecture conforme au projet réel** |
-
----
-
-## ✅ VALIDATION ET APPROBATIONS
-
-| Rôle | Nom | Signature | Date | Validation |
-|------|-----|-----------|------|------------|
-| **Auteur (Étudiant)** | [Nom Prénom] | _________________ | ____/____/2026 | ✅ |
-| **Chef de Projet** | [À compléter] | _________________ | ____/____/2026 | ⏳ |
-| **Lead DevOps** | [À compléter] | _________________ | ____/____/2026 | ⏳ |
-| **RSSI (Sécurité)** | [À compléter] | _________________ | ____/____/2026 | ⏳ |
-| **Direction Technique** | [À compléter] | _________________ | ____/____/2026 | ⏳ |
-
----
-
-**Document Confidentiel - Propriété de [Nom de l'Entreprise]**  
-*Toute reproduction interdite sans autorisation écrite*
-
----
-
-## 📊 RÉSUMÉ DE CONFORMITÉ GRILLE D'ÉVALUATION
-
-| Critère | Section(s) Correspondante(s) | Niveau Attendu |
-|---------|------------------------------|----------------|
-| **C23.1** - Collecte besoins | Section 1 (Méthodologie : interviews, questionnaires, audit technique) | ✅ Professionnel |
-| **C23.2** - Objectifs fonctionnels | Section 2.1 + 2.2 (User Stories détaillées, Cas d'usage) | ✅ Professionnel |
-| **C23.3** - Alignement besoins/contraintes | Section 3.4 (Matrice de traçabilité Besoins → Solutions) | ✅ Professionnel |
-| **C24.1** - Risques ET opportunités | Section 9 (Matrice des risques + 5 opportunités business chiffrées) | ✅ Professionnel |
-| **C24.2** - Justification choix techniques | Section 8 (Alternatives évaluées + Matrice de décision + Justifications **VMs + Docker**) | ✅ Professionnel |
-| **C24.3** - Structuration CDC | Executive Summary + Sommaire complet + Exigences numérotées | ✅ Professionnel |
-
----
-
-## 🎯 ARCHITECTURE RÉELLE DOCUMENTÉE (Version 2.2)
-
-### Différences avec v2.1 (Architecture Théorique)
-
-| Composant | v2.1 (Théorique) | v2.2 (Projet Réel) ✅ |
-|-----------|------------------|----------------------|
-| **Compute** | Azure Container Instances (Serverless) | **VMs Azure + Docker** |
-| **Provisioning** | Création ACI à la demande (30-45s) | **Création conteneur Docker (5-10s)** |
-| **Mutualisation** | Pas de mutualisation (1 ACI = 1 serveur) | **10-15 conteneurs par VM** |
-| **Coût** | ACI Spot : 8.6€/serveur/mois (24/7) | **VMs mutualisées : 2.4€/serveur/mois** (avec auto-shutdown) |
-| **VPN** | ✅ VPN obligatoire clients (MAINTENU) | ✅ **VPN obligatoire clients (MAINTENU)** |
-| **IP Publiques** | ✅ Aucune (cloaking) | ✅ **Aucune (cloaking maintenu)** |
-| **Isolation** | Hyperviseur (micro-VMs) | **Docker namespaces + cgroups** |
