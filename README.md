@@ -1,7 +1,3 @@
-Voici la version **sans aucun emoji**, contenu et structure conservés.
-
----
-
 # MineHost - Plateforme d'Hébergement Minecraft Sécurisée
 
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-success)](https://github.com)
@@ -10,8 +6,6 @@ Voici la version **sans aucun emoji**, contenu et structure conservés.
 [![Docker](https://img.shields.io/badge/Container-Docker-2496ED)](https://www.docker.com)
 
 **Plateforme SaaS d'hébergement de serveurs Minecraft** avec architecture cloud-native Azure, isolation Docker et sécurité Zero Trust via VPN obligatoire.
-
----
 
 ## Sommaire
 
@@ -24,8 +18,6 @@ Voici la version **sans aucun emoji**, contenu et structure conservés.
 * Performance et monitoring
 * Documentation complète
 * Équipe
-
----
 
 ## Vue d'ensemble
 
@@ -50,8 +42,6 @@ Les hébergeurs Minecraft actuels souffrent de :
 * Sécurité : aucune IP publique exposée, accès 100 % via VPN
 * Coût : 9,99 €/mois (2 Go RAM) avec arrêt automatique
 * Scalabilité : 10 à 15 serveurs par VM, ajout automatique de VMs
-
----
 
 ## Architecture
 
@@ -114,8 +104,6 @@ Subnet Data (10.0.3.0/24)
 * Azure Files par serveur
 * Chiffrement AES-256
 * Snapshots quotidiens
-
----
 
 ## Démarrage rapide
 
@@ -181,8 +169,6 @@ gunicorn --bind 0.0.0.0:5000 app:app --workers 4
 * Arrêt automatique après inactivité
 * Suivi en temps réel
 
----
-
 ## Administration
 
 ### Accès SSH (administrateurs)
@@ -207,8 +193,6 @@ terraform apply -var="vm_count=4"
 
 * Snapshots Azure Files quotidiens
 * Restauration manuelle possible
-
----
 
 ## Sécurité
 
@@ -238,8 +222,6 @@ terraform apply -var="vm_count=4"
 * Dépendances Python : mensuelle
 * OS : mises à jour automatiques
 
----
-
 ## Performance et monitoring
 
 ### KPIs
@@ -260,8 +242,6 @@ terraform apply -var="vm_count=4"
 * Latence P95 < 500 ms
 * Taux d’erreur < 1 %
 
----
-
 ## Documentation complète
 
 * Cahier des charges
@@ -271,8 +251,6 @@ terraform apply -var="vm_count=4"
 * Roadmap projet
 * Documentation API
 * Guides développeur
-
----
 
 ## Équipe
 
@@ -284,8 +262,6 @@ Efrei Campus Bordeaux – 2025–2026
 | Lead Dev / DevSecOps | Aydemir Alper  |
 | SRE / FinOps         | El Mensi Mehdi |
 
----
-
 ## Support
 
 * Email : [support@minehost.com](mailto:support@minehost.com)
@@ -293,13 +269,9 @@ Efrei Campus Bordeaux – 2025–2026
 * Documentation en ligne
 * Suivi des issues GitHub
 
----
-
 ## Licence
 
 Propriété intellectuelle : Aydemir Alper, El Mensi Mehdi
 Usage académique : Efrei Campus Bordeaux – Projet Fil Rouge 2025–2026
-
----
 
 MineHost – Hébergement Minecraft sécurisé et performant
