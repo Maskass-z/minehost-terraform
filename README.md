@@ -70,7 +70,6 @@ Subnet Data (10.0.3.0/24)
 | --------------- | ------------------------------ | ----------------------------------- |
 | Frontend        | Vue.js 3, Tailwind CSS         | Interface utilisateur               |
 | Backend API     | Python 3.11, Flask, SQLAlchemy | Orchestration Docker                |
-| Base de données | PostgreSQL 15                  | Utilisateurs, serveurs, facturation |
 | Compute         | Azure VM D4s_v3                | Hébergement conteneurs              |
 | Isolation       | Docker Engine 24               | Namespaces et cgroups               |
 | Stockage        | Azure Files Premium            | Persistance des données             |
@@ -83,18 +82,17 @@ Subnet Data (10.0.3.0/24)
 **Niveau réseau**
 
 * NSG bloquant tout accès Internet vers les VMs
-* VPN obligatoire avec certificats X.509
+* VPN obligatoire avec certificats 
 * Aucune IP publique
 
 **Niveau VM**
 
 * Ubuntu 24.04
 * Hardening OS
-* Accès admin via Azure Bastion
+* Accès admin via Azure 
 
 **Niveau Docker**
 
-* Namespaces PID, NET, MNT, IPC
 * Limites CPU, mémoire, PID
 * Exécution non-root
 * RootFS en lecture seule
@@ -117,7 +115,7 @@ Subnet Data (10.0.3.0/24)
 ### Déploiement infrastructure
 
 ```bash
-git clone https://github.com/votre-org/minehost.git
+git clone https://github.com/Maskass-z/minehost-terraform.git
 cd minehost
 
 az login
@@ -128,20 +126,6 @@ terraform init
 terraform apply -auto-approve
 
 terraform output -json > ../../../config/azure-outputs.json
-```
-
-### Déploiement application
-
-```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env
-flask db upgrade
-
-gunicorn --bind 0.0.0.0:5000 app:app --workers 4
 ```
 
 ---
@@ -166,7 +150,7 @@ gunicorn --bind 0.0.0.0:5000 app:app --workers 4
 ### Facturation
 
 * Facturation à la seconde
-* Arrêt automatique après inactivité
+* Arrêt automatique après inactivité (15mins)
 * Suivi en temps réel
 
 ## Administration
@@ -238,7 +222,7 @@ terraform apply -var="vm_count=4"
 
 ### Tests de charge
 
-* 100 utilisateurs simultanés
+* 50 utilisateurs simultanés
 * Latence P95 < 500 ms
 * Taux d’erreur < 1 %
 
@@ -265,7 +249,7 @@ Efrei Campus Bordeaux – 2025–2026
 ## Support
 
 * Email : [support@minehost.com](mailto:support@minehost.com)
-* Discord communautaire
+* Discord communautaire (on en aura un )
 * Documentation en ligne
 * Suivi des issues GitHub
 
