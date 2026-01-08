@@ -19,8 +19,6 @@
 
 **Financier** : OPEX 520€/mois (100 serveurs), CA 999€/mois → Marge 48% | Break-even : 53 clients
 
-**Planning** : 9 semaines | MVP (S1-4) → Hardening VPN (S5-6) → FinOps (S7-8) → Prod (S9)
-
 ---
 
 ## SOMMAIRE
@@ -358,14 +356,15 @@ Internet → [VPN Gateway X.509] → VNet 10.0.0.0/16
 
 ---
 
-## 11. PLANNING (9 semaines)
+## 11. PLANNING
 
-| Phase | Durée | Livrables | Critère Succès |
-|-------|-------|-----------|---------------|
-| **MVP** | S1-4 | API Flask + Docker + PostgreSQL + Auth |  Créer serveur <60s + Auth OK |
-| **Hardening** | S5-6 | VPN OpenVPN + Key Vault + Rate Limit |  0 CVE critique (ZAP) + VPN OK |
-| **FinOps** | S7-8 | Auto-Shutdown RCON + Facturation Stripe |  Auto-shutdown testé + Facturation précise |
-| **Prod** | S9 | Tests charge + Pentest externe + Doc |  1000 req/s + 0 CVE + DR <15min |
+| Phase         | Livrables                                         | Critère Succès                             |
+| ------------- | ------------------------------------------------- | ------------------------------------------ |
+| **MVP**       | API Flask · Docker · PostgreSQL · Auth            | Serveur créé < 60s · Auth fonctionnelle    |
+| **Hardening** | VPN OpenVPN · Key Vault · Rate Limiting           | 0 CVE critique (ZAP) · VPN opérationnel    |
+| **FinOps**    | Auto-Shutdown RCON · Facturation Stripe           | Auto-shutdown validé · Facturation précise |
+| **Prod**      | Tests de charge · Pentest externe · Documentation | 1000 req/s · 0 CVE · DR < 15 min           |
+
 
 ---
 
