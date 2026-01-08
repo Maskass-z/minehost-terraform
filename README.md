@@ -246,7 +246,7 @@ terraform apply -var="vm_count=4"
 
 * Provisioning < 60 s
 * Latence API < 200 ms
-* Disponibilité > 99,5 %
+* Disponibilité > 90 %
 
 ### Alerting
 
@@ -256,7 +256,7 @@ terraform apply -var="vm_count=4"
 
 ### Tests de charge
 
-* 1 000 utilisateurs simultanés
+* 100 utilisateurs simultanés
 * Latence P95 < 500 ms
 * Taux d’erreur < 1 %
 
@@ -277,7 +277,7 @@ terraform apply -var="vm_count=4"
 ## Équipe
 
 Projet Fil Rouge – MSc Expert Cybersécurité
-YNOV Campus Bordeaux – 2025–2026
+Efrei Campus Bordeaux – 2025–2026
 
 | Rôle                 | Nom            |
 | -------------------- | -------------- |
@@ -298,7 +298,7 @@ YNOV Campus Bordeaux – 2025–2026
 ## Licence
 
 Propriété intellectuelle : Aydemir Alper, El Mensi Mehdi
-Usage académique : YNOV Campus Bordeaux – Projet Fil Rouge 2025–2026
+Usage académique : Efrei Campus Bordeaux – Projet Fil Rouge 2025–2026
 
 ---
 
