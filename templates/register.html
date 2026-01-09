@@ -1,23 +1,232 @@
 <!doctype html>
-<title>Inscription</title>
-<h1>Inscription</h1>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Minecraft Manager</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .register-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .flashes {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .flashes li {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .password-requirements {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .password-strength {
+            height: 5px;
+            border-radius: 3px;
+            margin-top: 5px;
+            background-color: #ddd;
+            transition: all 0.3s;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button[type="submit"]:hover {
+            background-color: #5568d3;
+        }
+        button[type="submit"]:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>📝 Inscription</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message|e }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for category, message in messages %}
-      <li style="color: {{ 'green' if category == 'success' else 'red' }};">{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
+        <form method="POST" action="{{ url_for('register') }}" onsubmit="return validateRegister()">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    required 
+                    minlength="3"
+                    maxlength="50"
+                    autofocus
+                    autocomplete="username"
+                    pattern="[a-zA-Z0-9_-]{3,50}"
+                    title="3-50 caractères : lettres, chiffres, tirets et underscores"
+                >
+                <small class="password-requirements">3-50 caractères (lettres, chiffres, - et _)</small>
+            </div>
 
-<form method="POST" action="{{ url_for('register') }}">
-    <label for="username">Nom d'utilisateur:</label><br>
-    <input type="text" id="username" name="username" required><br><br>
-    <label for="password">Mot de passe:</label><br>
-    <input type="password" id="password" name="password" required><br><br>
-    <button type="submit">S'inscrire</button>
-</form>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required
+                    minlength="8"
+                    autocomplete="new-password"
+                    oninput="checkPasswordStrength()"
+                >
+                <div class="password-strength" id="strengthBar"></div>
+                <small class="password-requirements">
+                    Minimum 8 caractères. Recommandé : majuscules, minuscules, chiffres et symboles
+                </small>
+            </div>
 
-<p>Déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a></p>
+            <div class="form-group">
+                <label for="password_confirm">Confirmer le mot de passe</label>
+                <input 
+                    type="password" 
+                    id="password_confirm" 
+                    name="password_confirm" 
+                    required
+                    autocomplete="new-password"
+                >
+            </div>
+
+            <button type="submit" id="submitBtn">Créer mon compte</button>
+        </form>
+
+        <div class="login-link">
+            Déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a>
+        </div>
+    </div>
+
+    <script>
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthBar = document.getElementById('strengthBar');
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            const colors = ['#ff4444', '#ffaa00', '#ffdd00', '#88dd00', '#00dd00'];
+            const widths = ['20%', '40%', '60%', '80%', '100%'];
+
+            strengthBar.style.backgroundColor = colors[strength - 1] || '#ddd';
+            strengthBar.style.width = widths[strength - 1] || '0%';
+        }
+
+        function validateRegister() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password_confirm').value;
+
+            if (username.length < 3) {
+                alert('❌ Le nom d\'utilisateur doit contenir au moins 3 caractères');
+                return false;
+            }
+
+            if (password.length < 8) {
+                alert('❌ Le mot de passe doit contenir au moins 8 caractères');
+                return false;
+            }
+
+            if (password !== passwordConfirm) {
+                alert('❌ Les mots de passe ne correspondent pas');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</body>
+</html>
