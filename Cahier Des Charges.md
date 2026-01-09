@@ -46,11 +46,11 @@ On a audité 5 hébergeurs. 3 sur 5 sont vulnérables aux injections SQL, 4 sur 
 **Côté utilisateur** :
 - USR-001 : Une interface web simple, pas de ligne de commande
 - USR-002 : Se connecter en moins de 2 minutes
-- USR-003 : 99% de disponibilité minimum
+- USR-003 : 90% de disponibilité minimum
 
 **Côté technique** :
 - TEC-001 : Infrastructure basée sur Docker
-- TEC-002 : Isolation stricte entre les serveurs
+- TEC-002 : Isolation stricte des serveurs
 - TEC-003 : Sauvegardes automatiques
 
 **Côté sécurité** :
@@ -65,10 +65,10 @@ On a audité 5 hébergeurs. 3 sur 5 sont vulnérables aux injections SQL, 4 sur 
 ### User Stories (exemples)
 
 **US-001 - Créer un compte**  
-Un visiteur arrive sur le site, entre son email et un mot de passe (minimum 12 caractères), reçoit un email de confirmation sous 5 secondes, et son compte est activé sous 24h.
+Un visiteur arrive sur le site, entre son email et un mot de passe (minimum 8 caractères et son compte est activé.
 
 **US-002 - Commander un serveur**  
-L'utilisateur choisit un nom (lettres minuscules et chiffres uniquement), sélectionne la RAM (2, 4 ou 8GB), et clique sur "Créer". Le provisioning prend environ 45 secondes. Il reçoit un fichier .ovpn pour se connecter au VPN, et une IP privée du type 10.0.2.x:25565 pour accéder à son serveur.
+L'utilisateur choisit un nom (lettres minuscules et chiffres uniquement), sélectionne la RAM (2, 4 ou 8GB), et clique sur "Créer". Le provisioning prend environ 120 secondes. Il reçoit un fichier .ovpn pour se connecter au VPN, et une IP privée du type 10.8.x.x:xxxxx pour accéder à son serveur.
 
 **US-003 - Arrêter le serveur**  
 L'utilisateur clique sur "Arrêter". Le système fait une sauvegarde automatique, stoppe le conteneur Docker en 10 secondes, et la facturation s'arrête immédiatement.
@@ -80,50 +80,38 @@ L'utilisateur clique sur "Arrêter". Le système fait une sauvegarde automatique
 - EXI-002 : Les mots de passe sont hachés avec Scrypt (pas de plaintext en base)
 
 **Gestion des serveurs** :
-- EXI-006 : Provisioning en moins de 60 secondes
+- EXI-006 : Provisioning en moins de 120 secondes
 - EXI-007 : Choix de RAM : 2GB, 4GB ou 8GB
 - EXI-009 : Start/Stop à volonté, autant de fois qu'on veut
-- EXI-010 : Sauvegarde automatique à chaque arrêt
-
-**Facturation** :
-- EXI-014 : Facturation à la seconde (1 heure = 60 × prix par seconde)
-- EXI-016 : Paiement via Stripe (PCI-DSS compliant)
 
 **Sécurité** :
-- EXI-018 : Les serveurs sont accessibles UNIQUEMENT via VPN
-- EXI-019 : VPN avec certificats X.509 (pas de mots de passe)
-- EXI-020 : Les conteneurs tournent en non-root (UID 1000)
+- EXI-011 : Les serveurs sont accessibles UNIQUEMENT via VPN
+- EXI-012 : VPN avec mots de passe
 
 ---
 
 ## 3. CONTRAINTES TECHNIQUES
 
-### Sécurité (conforme OWASP Top 10, CIS Docker)
+### Sécurité
 
 **SEC-C01** : Pas de secrets en dur dans le code  
 → Solution : Fichier .env avec variables d'environnement
 
-**SEC-C02** : Chiffrement AES-256 au repos  
-→ Solution : LUKS pour chiffrer les disques
-
-**SEC-C03** : TLS 1.3 obligatoire  
-→ Solution : Nginx avec Let's Encrypt
-
-**SEC-C04** : Protection contre les injections SQL  
+**SEC-C02** : Protection contre les injections SQL  
 → Solution : SQLAlchemy avec requêtes paramétrées (ORM)
 
-**SEC-C05** : Rate limiting de 10 requêtes par seconde par IP  
+**SEC-C03** : Rate limiting de 10 requêtes par seconde par IP  
 → Solution : Flask-Limiter + Redis
 
 ### Performance
 
-**PERF-C01** : Provisioning en moins de 60 secondes (percentile 95)  
+**PERF-C01** : Provisioning en moins de 120 secondes (percentile 90)  
 Si on dépasse, on perd notre avantage compétitif.
 
 **PERF-C02** : Latence API sous 200ms (percentile 95)  
 Si on dépasse, l'expérience utilisateur devient mauvaise.
 
-**PERF-C04** : Disponibilité de 99% minimum  
+**PERF-C04** : Disponibilité de 90% minimum  
 Si on descend en dessous, on a des pénalités SLA.
 
 ### RGPD
@@ -150,63 +138,73 @@ Article 17 (droit à l'oubli) : `DELETE /api/account` supprime tout.
 
 - **Backend** : Python 3.11 + Flask 3.0
 - **Base de données** : PostgreSQL 15
-- **Frontend** : Vue.js 3
+- **Frontend** : Jinja2 (HTML/Flask)
 - **Orchestration** : Docker SDK Python
-- **Logs temps réel** : Flask-SocketIO
+- **Logs temps réel** : Docker SDK Tail
 
 ### Comment ça marche (code simplifié)
 
 ```python
 import docker
-import subprocess
+import os
+import random
 import re
 
+# Initialisation du client Docker (parle directement au socket /var/run/docker.sock)
 client = docker.from_env()
 
-def create_server(user_id, name, ram):
-    if not re.match(r"^[a-z0-9-]{3,20}$", name):
-        raise SecurityException("Nom invalide")
-    
+def create_server(user_id, server_name, version, memory="512M"):
+    # 1. VALIDATION SÉCURITÉ (Regex pour éviter les injections de noms)
+    if not re.match(r'^[a-zA-Z0-9_-]{3,50}$', server_name):
+        return {"error": "Nom invalide"}
+
+    # 2. QUOTA (Vérification en base de données, pas en shell)
     if get_user_server_count(user_id) >= 5:
-        raise QuotaExceededException("Limite atteinte")
+        return {"error": "Limite de 5 serveurs atteinte"}
+
+    # 3. ATTRIBUTION DU PORT (On ne laisse pas Docker choisir, on gère l'unicité)
+    public_port = random.randint(25566, 26000)
     
-    compose_yaml = f"""
-version: '3.8'
-services:
-  minecraft-{user_id}-{name}:
-    image: itzg/minecraft-server:latest
-    environment:
-      EULA: "TRUE"
-      VERSION: "1.20.4"
-      MEMORY: "{ram}G"
-    volumes:
-      - ./data/{user_id}/{name}:/data
-    mem_limit: {ram}g
-    user: "1000:1000"
-    security_opt:
-      - no-new-privileges
-"""
-    
-    os.makedirs(f"/opt/minehost/servers/{user_id}-{name}", exist_ok=True)
-    with open(f"/opt/minehost/servers/{user_id}-{name}/docker-compose.yml", "w") as f:
-        f.write(compose_yaml)
-    
-    subprocess.run([
-        "docker-compose",
-        "-f", f"/opt/minehost/servers/{user_id}-{name}/docker-compose.yml",
-        "up", "-d"
-    ])
-    
-    container = client.containers.get(f"minecraft-{user_id}-{name}")
-    ip = container.attrs['NetworkSettings']['Networks']['minecraft-net']['IPAddress']
-    
-    return {"status": "running", "ip": f"{ip}:25565"}
+    # 4. PROVISIONING DISQUE
+    # On utilise ton chemin réel sur la Debian
+    base_path = '/home/maskass/minecraft-automation/servers'
+    host_volume_path = os.path.join(base_path, server_name)
+    os.makedirs(host_volume_path, exist_ok=True)
+
+    # 5. ORCHESTRATION (Via Docker SDK - Pas de docker-compose up)
+    try:
+        container = client.containers.run(
+            image='itzg/minecraft-server',
+            detach=True,
+            name=f"mc-{server_name}-{user_id}",
+            ports={'25565/tcp': public_port}, # Mapping Port Public -> Interne
+            environment={
+                'EULA': 'TRUE',
+                'TYPE': 'VANILLA',
+                'VERSION': version,
+                'MEMORY': memory
+            },
+            volumes={
+                host_volume_path: {'bind': '/data', 'mode': 'rw'}
+            },
+            # Sécurité & Isolation
+            user="1000:1000", # Non-root (UID de maskass)
+            restart_policy={'Name': 'unless-stopped'}
+        )
+        
+        # Retourne l'IP du VPN Minehost configurée dans app.py
+        return {
+            "status": "running", 
+            "ip": f"10.8.0.2:{public_port}"
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
 ```
 
 ### Sécurisation du code
 
 - **Validation des inputs** : Regex `^[a-z0-9-]{3,20}$` pour les noms
-- **Protection CSRF** : Jetons anti-CSRF sur tous les POST/PUT/DELETE
 - **Protection BOLA/IDOR** : Vérification `if server.owner_id != current_user.id: abort(403)`
 - **Rate limiting** : 10 requêtes par seconde par IP
 
@@ -216,27 +214,23 @@ services:
 
 ### Le serveur
 
-On a un serveur Debian 12 (bare metal ou VPS) :
-- **CPU** : 12 vCPU
-- **RAM** : 32GB
+On a un serveur Debian 12 :
+- **CPU** : 8 vCPU
+- **RAM** : 8GB
 - **Disque** : 512GB SSD
 - **Docker** : Engine 24.0 + Docker Compose 2.20
 
 Capacité : 15-20 serveurs Minecraft simultanés.
 
-L'isolation est faite par Docker : namespaces Linux (PID, NET, MNT) + cgroups pour limiter CPU et RAM + iptables pour le réseau.
+L'isolation est faite par Docker.
 
 ### Le stockage
 
-Les données sont stockées dans des volumes Docker locaux : `/opt/minehost/data/{user_id}/{server_name}`
+Les données sont stockées dans des volumes Docker locaux
 
 Ça persiste même si le conteneur est arrêté ou supprimé.
 
-**Backups automatiques** : Un script rsync tourne tous les jours à 4h du matin et copie tout vers un stockage externe.
-
-```bash
-rsync -avz /opt/minehost/data/ /backup/daily/$(date +%Y%m%d)/
-```
+**Backups automatiques** : Un script rsync tourne tous les jours à 4h du matin et copie tout vers un stockage externe.  /!\ a faire /!\
 
 ### Le réseau
 
@@ -246,76 +240,33 @@ Internet
     ↓
 [OpenVPN Server]
     ↓
-Réseau Docker "minecraft-net" (172.20.0.0/16)
+Réseau Docker
     ↓
-Conteneurs Minecraft (172.20.0.x) + PostgreSQL (172.20.0.2)
+Conteneurs Minecraft
 ```
-
-**Règles firewall (iptables)** :
-
-On bloque TOUT par défaut :
-```bash
-iptables -P INPUT DROP
-iptables -A INPUT -i lo -j ACCEPT  
-iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT  
-iptables -A INPUT -p tcp --dport 2222 -j ACCEPT 
-iptables -A INPUT -p udp --dport 1194 -j ACCEPT  
-```
-
-Pas d'accès direct aux conteneurs depuis Internet :
-```bash
-iptables -A FORWARD -i eth0 -o docker0 -j DROP  
-iptables -A FORWARD -i tun0 -o docker0 -j ACCEPT  
-```
-
-**OpenVPN** :
-```conf
-port 1194
-proto udp
-dev tun
-server 10.8.0.0 255.255.255.0
-push "route 172.20.0.0 255.255.0.0"  
-cipher AES-256-GCM
-user nobody
-group nogroup
-```
-
----
 
 ## 6. SÉCURITÉ
 
 ### Zero Trust & VPN
 
-On a un serveur OpenVPN qui tourne sur le serveur principal. L'authentification se fait uniquement par certificats X.509 (pas de mots de passe). Les certificats sont générés avec EasyRSA.
+On a un serveur OpenVPN qui tourne sur le serveur principal. L'authentification se fait par mots de passe.
 
 Le workflow :
 1. L'utilisateur commande un serveur
-2. L'API génère un certificat client unique
-3. L'utilisateur télécharge le fichier .ovpn
-4. Il se connecte au VPN
-5. Il peut accéder à son serveur via l'IP privée Docker
+2. L'utilisateur télécharge le fichier .ovpn
+3. Il se connecte au VPN
+4. Il peut accéder à son serveur via l'IP privée Docker
 
 ### Durcissement Docker (CIS Benchmark)
 
 - **User non-root** : Les conteneurs tournent avec UID 1000
-- **Capabilities drop** : On enlève toutes les capabilities sauf NET_BIND_SERVICE
-- **Read-only rootfs** : Le système de fichiers root est en lecture seule (sauf /data et /tmp)
-- **no-new-privileges** : Empêche l'escalade de privilèges
 
 ### Gestion des secrets
 
 On utilise un fichier `.env` (qui est dans .gitignore) :
 
 ```python
-DB_PASSWORD=mon_super_mot_de_passe
-SECRET_KEY=ma_cle_secrete
-STRIPE_API_KEY=sk_test_...
-
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-db_password = os.getenv('DB_PASSWORD')
+FLASK_SECRET_KEY
 ```
 
 ---
@@ -324,33 +275,11 @@ db_password = os.getenv('DB_PASSWORD')
 
 ### Mutualisation
 
-On a 1 serveur qui héberge 15-20 conteneurs Minecraft simultanés. Coût du serveur :
-- VPS : environ 50€/mois
-- Dédié : environ 150€/mois
+L'utilisation de Docker permet une densité élevée. la mutualisation permet de diviser le coût fixe du serveur par le nombre de conteneurs.
 
-### Auto-Shutdown (économie de ressources)
+Coût par serveur (si 15 serveurs) : ~1€ / mois.
 
-On a un watchdog qui tourne toutes les 5 minutes. Il check via RCON combien il y a de joueurs sur chaque serveur. Si un serveur a 0 joueur pendant 15 minutes, on le stoppe automatiquement avec `docker-compose stop`. La facturation s'arrête.
-
-```python
-import mcrcon
-
-for server in active_servers:
-    try:
-        with mcrcon.MCRcon(server.ip, "password") as mc:
-            response = mc.command("list")
-            players = int(response.split()[2])
-        
-        if players == 0:
-            server.idle_time += 5
-            if server.idle_time >= 15:
-                subprocess.run(["docker-compose", "stop", server.compose_path])
-                server.status = "stopped"
-    except:
-        pass
-```
-
----
+Marge brute : En vendant l'accès 10€, la marge dépasse les 65%, atteignant les 85% visés sur des infrastructures plus denses.
 
 ## 8. POURQUOI CES CHOIX
 
@@ -359,7 +288,7 @@ On a comparé plusieurs solutions :
 **Self-Hosting vs Cloud Azure vs Kubernetes**
 
 Self-Hosting (notre choix) :
-- Coûts : 55€/mois (VPS) ou 150€/mois (dédié)
+- Coûts : 55€/mois (VPS) ou 150€/mois (dédié) ou 1000€ Serveur privé
 - Contrôle total (accès root, on fait ce qu'on veut)
 - Simple (pas de complexité Kubernetes)
 - Score : 9.5/10
@@ -428,34 +357,19 @@ ROI : -60% de coût d'acquisition client
 Mesure : `time docker-compose up -d`
 
 **Latence API** : Moins de 200ms (percentile 95)  
-Mesure : Prometheus Flask exporter
+Mesure : Test IG
 
-**Disponibilité** : 99% minimum  
-Mesure : Uptime Kuma (self-hosted)
-
-**Marge brute** : Plus de 85%  
-Calcul : (CA - OPEX) / CA
+**Disponibilité** : 90% minimum  
+Mesure : Mesure test sur 1 mois
 
 ---
 
 ## 11. PLANNING 
 
-**MVP**  
-On fait l'API Flask, le système de déploiement Docker Compose, la base PostgreSQL, et l'authentification.  
-Critère de succès : On peut créer un serveur en moins de 60 secondes.
-
-**Hardening (sécurité)**  
-On configure l'OpenVPN, on met en place le rate limiting, on passe en HTTPS.  
-Critère de succès : Scan OWASP ZAP avec 0 vulnérabilité critique, VPN fonctionnel.
-
-**FinOps**  
-On code l'auto-shutdown et on intègre Stripe pour la facturation.  
-Critère de succès : Auto-shutdown testé, facturation précise à la seconde.
-
-**Production**  
-Tests de charge, pentest externe, documentation.  
-Critère de succès : 1000 requêtes/seconde, 0 CVE critique.
-
+MVP	100%	Aucun, le moteur Docker SDK est stable.
+Hardening	70%	La gestion du ReadOnly rootfs peut bloquer certains plugins Minecraft.
+FinOps	40%	L'auto-shutdown nécessite une gestion fine des ports RCON.
+Production	10%	La RAM (8Go) est le goulot d'étranglement principal.
 ---
 
 ## 12. RGPD
@@ -467,33 +381,33 @@ Critère de succès : 1000 requêtes/seconde, 0 CVE critique.
 - Droit à l'oubli : `DELETE /api/account` supprime tout (serveurs + données + compte)
 - Portabilité : Export JSON + ZIP
 
-
 ---
 
 ## 13. BUDGET & ROI
 
 ### Les coûts mensuels
+Électricité : Un PC qui tourne 24h/24 consomme environ 100W à 150W en charge.
 
-**Serveur Debian VPS** (8 vCPU, 16GB RAM) : 50€/mois  
-**Stockage backup externe** : 5€/mois  
-**Total** : 55€/mois
+Calcul : ~0.15kWh × 24h × 30j × 0.23€ = 25€/mois.
 
-(Si on prend un serveur dédié : environ 150€/mois)
+Connexion Internet : Déjà payée
 
-### Le retour sur investissement
+Maintenance & Amortissement : Provision pour remplacement de pièces (SSD/Ventilation) : 5€/mois.
 
-**Offre Starter 2GB** : Prix 9.99€/mois | Coût 0.55€ | Marge 9.44€ (94%)
+Total OPEX (Coûts d'exploitation) : 30€/mois.
 
-**Avec 100 clients** :
-- Chiffre d'affaires : 999€/mois
-- Coûts : 55€/mois
-- Marge : 944€/mois (94%)
-- Break-even : 6 clients
+Le retour sur investissement (ROI)
+Offre Starter 512MB/1GB : Prix 9.99€/mois | Coût marginal (Élec/Data) : ~0.20€ | Marge : 98%
 
-**Comparaison** :
-- Azure : 520€/mois de coûts → Marge de seulement 48% → Break-even à 53 clients
-- Nous : 55€/mois → Marge de 94% → Break-even à 6 clients
+Avec ton infrastructure actuelle (Capacité max 15-20 serveurs) :
 
+Chiffre d'affaires (20 clients) : 199.80€/mois
+
+Coûts (Élec + Maintenance) : 30€/mois
+
+Marge Nette : 169.80€/mois (85% de marge)
+
+Break-even : 3 clients seulement pour couvrir tes factures d'électricité.
 ---
 
 ## 14. LES TESTS
