@@ -307,9 +307,13 @@ Mesure : Mesure test sur 1 mois
 ## 11. PLANNING 
 
 MVP	100%	Aucun, le moteur Docker SDK est stable.
+
 Hardening	70%	La gestion du ReadOnly rootfs peut bloquer certains plugins Minecraft.
+
 FinOps	40%	L'auto-shutdown nécessite une gestion fine des ports RCON.
+
 Production	10%	La RAM (8Go) est le goulot d'étranglement principal.
+
 ---
 
 ## 12. RGPD
