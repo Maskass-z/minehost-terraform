@@ -1,54 +1,41 @@
-version: '3.8'
-
 services:
-  # --- 1. TON APPLICATION WEB (FLASK) ---
-  web:
-    # Construit l'image à partir du Dockerfile situé dans le même dossier (.)
-    build: .
-    container_name: minehost-web
-    restart: unless-stopped
+  api_server:
+    build: ./api
+    container_name: minecraft-api
+    depends_on:
+      - api_db
     ports:
       - "5000:5000"
-    
-    # --- VOLUMES CRITIQUES ---
     volumes:
-      # 1. Permet à l'API de "parler" au Docker du PC hôte pour créer les serveurs
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./servers:/home/app/servers
       
-      # 2. Persistance : On lie le dossier de l'hôte (défini dans .env) au dossier du conteneur
-      # Le chemin interne '/app/minecraft_data' doit correspondre à ce qui est attendu dans app.py
-      - ${MINECRAFT_BASE_PATH}:/app/minecraft_data
-
-    # --- INJECTION DES SECRETS (Depuis le fichier .env) ---
-    environment:
-      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
-      MINECRAFT_BASE_PATH: /app/minecraft_data
-      
-      # Connexion BDD
-      DB_HOST: api-database
-      DB_NAME: ${POSTGRES_DB}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASS: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env 
     
-    depends_on:
-      - api-database
-
-  # --- 2. LA BASE DE DONNÉES (POSTGRESQL) ---
-  api-database:
+    restart: unless-stopped    
+  api_db:
     image: postgres:15-alpine
     container_name: api-database
-    restart: unless-stopped
-    
-    # --- SECRETS BDD (Depuis le fichier .env) ---
+    restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    
-    # Stockage persistant de la base de données
+      POSTGRES_USER: api_user
+      POSTGRES_PASSWORD: secret_password 
+      POSTGRES_DB: server_manager_db
     volumes:
-      - db_data:/var/lib/postgresql/data
-
-# Volume nommé pour la BDD (géré par Docker)
-volumes:
-  db_data:
+      - ./db_data:/var/lib/postgresql/data
+    
+  minecraft_test:
+    image: itzg/minecraft-server
+    container_name: minecraft-test-server
+    environment:
+      EULA: "TRUE"
+      TYPE: "VANILLA" 
+      VERSION: "1.20.1"
+      MEMORY: "256M"  
+      MOTD: "Serveur Test RAM (256M) !"
+    ports:
+      - "25565:25565" 
+    volumes:
+      - ./mc_data:/data 
+    restart: unless-stopped
