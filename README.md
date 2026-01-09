@@ -2,10 +2,10 @@
 
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-success)](https://github.com)
 [![Security](https://img.shields.io/badge/Security-Zero%20Trust%20VPN-blue)](https://github.com)
-[![Azure](https://img.shields.io/badge/Cloud-Azure-0078D4)](https://azure.microsoft.com)
+[![Self-Hosted](https://img.shields.io/badge/Infrastructure-Self--Hosted-orange)](https://github.com)
 [![Docker](https://img.shields.io/badge/Container-Docker-2496ED)](https://www.docker.com)
 
-**Plateforme SaaS d'hébergement de serveurs Minecraft** avec architecture cloud-native Azure, isolation Docker et sécurité Zero Trust via VPN obligatoire.
+**Plateforme SaaS d'hébergement de serveurs Minecraft** avec architecture self-hosted sur serveur Debian, isolation Docker et sécurité Zero Trust via VPN obligatoire.
 
 ## Sommaire
 
@@ -33,15 +33,15 @@ Les hébergeurs Minecraft actuels souffrent de :
 
 * Sécurité maximale : Zero Trust + VPN obligatoire (infrastructure non exposée à Internet)
 * Simplicité : interface web, provisioning en moins de 2 minutes
-* Isolation garantie : Docker + NSG + Azure Files dédiés
+* Isolation garantie : Docker + iptables + volumes dédiés
 * Tarification juste : facturation à la seconde d'utilisation réelle
 
 ### Indicateurs clés
 
 * Provisioning : < 2 minutes
 * Sécurité : aucune IP publique exposée, accès 100 % via VPN
-* Coût : 9,99 €/mois (2 Go RAM) avec arrêt automatique
-* Scalabilité : 10 à 15 serveurs par VM, ajout automatique de VMs
+* Coût : 9,99 €/mois (2 Go RAM)
+* Scalabilité : 15-20 serveurs simultanés par machine
 
 ## Architecture
 
@@ -50,133 +50,128 @@ Les hébergeurs Minecraft actuels souffrent de :
 ```
 INTERNET
    |
-Azure VPN Gateway (OpenVPN, certificats X.509)
+OpenVPN Server (mot de passe)
    |
-VNet Azure 10.0.0.0/16
+Serveur Debian 12 (8 vCPU, 8GB RAM)
    |
-Subnet VMs (10.0.2.0/24)
-- VM-01 Docker (10–15 conteneurs)
-- VM-02 Docker (10–15 conteneurs)
-- VM-03 Docker (10–15 conteneurs)
+Docker Network "minecraft-net" (172.20.0.0/16)
    |
-Subnet Data (10.0.3.0/24)
-- PostgreSQL
-- Azure Files
+- Conteneurs Minecraft (15-20 simultanés)
+- PostgreSQL (172.20.0.2)
 ```
 
 ### Composants principaux
 
 | Composant       | Technologie                    | Rôle                                |
 | --------------- | ------------------------------ | ----------------------------------- |
-| Frontend        | Vue.js 3, Tailwind CSS         | Interface utilisateur               |
 | Backend API     | Python 3.11, Flask, SQLAlchemy | Orchestration Docker                |
-| Compute         | Azure VM D4s_v3                | Hébergement conteneurs              |
+| Base de données | PostgreSQL 15                  | Gestion utilisateurs, serveurs      |
+| Compute         | Serveur Debian 12              | Hébergement conteneurs              |
 | Isolation       | Docker Engine 24               | Namespaces et cgroups               |
-| Stockage        | Azure Files Premium            | Persistance des données             |
-| Sécurité        | OpenVPN, NSG, Key Vault        | Zero Trust                          |
-| Monitoring      | Azure Monitor, Grafana         | Supervision                         |
-| IaC             | Terraform 1.6                  | Déploiement infrastructure          |
+| Stockage        | Volumes Docker locaux          | Persistance des données             |
+| Sécurité        | OpenVPN, iptables              | Zero Trust                          |
+| IaC             | Docker Compose 2.20            | Déploiement infrastructure          |
 
 ### Isolation multi-niveaux
 
 **Niveau réseau**
 
-* NSG bloquant tout accès Internet vers les VMs
-* VPN obligatoire avec certificats 
-* Aucune IP publique
+* iptables bloquant tout accès Internet vers le serveur (sauf SSH custom + OpenVPN)
+* VPN obligatoire avec mots de passe
+* Pas d'IP publique sur les conteneurs
 
-**Niveau VM**
+**Niveau serveur**
 
-* Ubuntu 24.04
+* Debian 12
 * Hardening OS
-* Accès admin via Azure 
+* Fail2ban
 
 **Niveau Docker**
 
-* Limites CPU, mémoire, PID
-* Exécution non-root
-* RootFS en lecture seule
+* Limites CPU, mémoire via cgroups
+* Exécution non-root (UID 1000)
+* Isolation namespaces (PID, NET, MNT)
 
 **Niveau stockage**
 
-* Azure Files par serveur
-* Chiffrement AES-256
-* Snapshots quotidiens
+* Volume Docker par serveur (`/opt/minehost/data/{user}/{server}`)
+* Persistance indépendante du cycle de vie conteneur
+* Backups quotidiens (rsync)
 
 ## Démarrage rapide
 
 ### Prérequis
 
-* Compte Azure actif
-* Terraform >= 1.6
-* Azure CLI >= 2.50
+* Serveur Debian 12
 * Docker >= 24
+* Docker Compose >= 2.20
+* OpenVPN configuré
 
 ### Déploiement infrastructure
 
 ```bash
 git clone https://github.com/Maskass-z/minehost-terraform.git
-cd minehost
+cd minehost-terraform
 
-az login
-az account set --subscription "<SUBSCRIPTION_ID>"
+cp .env.example .env
 
-cd terraform/environments/prod
-terraform init
-terraform apply -auto-approve
+docker-compose up -d
 
-terraform output -json > ../../../config/azure-outputs.json
+docker ps
+docker logs api
 ```
 
 ---
 
 ## Guide utilisateur
 
-### Création d’un serveur
+### Création d'un serveur
 
 1. Connexion au dashboard
 2. Création du serveur
-3. Choix des ressources (RAM, version Minecraft)
-4. Provisioning automatique
-5. Téléchargement du fichier VPN
-6. Connexion via IP privée
+3. Choix des ressources (RAM : 512MB/1GB/2GB/4GB/8GB, version Minecraft)
+4. Provisioning automatique (~120 secondes)
+5. Téléchargement du fichier VPN (.ovpn)
+6. Connexion via IP privée (10.8.0.2:port)
 
 ### Gestion
 
 * Démarrage et arrêt du serveur
-* Logs temps réel
+* Logs temps réel (Docker SDK)
 * Suppression sécurisée
 
 ### Facturation
 
 * Facturation à la seconde
-* Arrêt automatique après inactivité (15mins)
 * Suivi en temps réel
 
 ## Administration
 
 ### Accès SSH (administrateurs)
 
-Via Azure Bastion uniquement.
+```bash
+ssh -p 2222 maskass@votre-serveur
+```
 
 ### Supervision Docker
 
 ```bash
 docker ps
 docker stats
-docker logs -f <container>
+docker logs -f mc-<server>-<user>
 ```
 
 ### Scalabilité
 
-```bash
-terraform apply -var="vm_count=4"
-```
+Pour augmenter la capacité :
+1. Upgrade RAM/CPU du serveur
+2. Ou ajouter un second serveur + load balancer
 
 ### Sauvegardes
 
-* Snapshots Azure Files quotidiens
-* Restauration manuelle possible
+* Script rsync quotidien (4h du matin)
+* Stockage externe
+* Rétention : 7 jours
 
 ## Sécurité
 
@@ -184,61 +179,58 @@ terraform apply -var="vm_count=4"
 
 | Standard             | Statut   |
 | -------------------- | -------- |
-| ISO 27001            | En cours |
 | OWASP Top 10         | Conforme |
-| CIS Docker Benchmark | Conforme |
+| CIS Docker Benchmark | Partiel  |
 | RGPD                 | Conforme |
 
 ### Sécurité applicative
 
-* SAST : Bandit, SonarQube
-* DAST : OWASP ZAP
+* SAST : Bandit
 * Scan images : Trivy
+* Rate limiting : Flask-Limiter
 
 ### Gestion des secrets
 
-* Azure Key Vault
-* Aucun secret en dur
+* Fichier .env (gitignored)
+* Aucun secret en dur dans le code
 
-### Politique de mises à jour
+### Firewall
 
-* Images Docker : hebdomadaire
-* Dépendances Python : mensuelle
-* OS : mises à jour automatiques
+```bash
+iptables -P INPUT DROP
+iptables -A INPUT -p tcp --dport 2222 -j ACCEPT  
+iptables -A INPUT -p udp --dport 1194 -j ACCEPT 
+iptables -A FORWARD -i eth0 -o docker0 -j DROP   
+iptables -A FORWARD -i tun0 -o docker0 -j ACCEPT 
+```
 
 ## Performance et monitoring
 
 ### KPIs
 
-* Provisioning < 60 s
+* Provisioning < 120 s
 * Latence API < 200 ms
 * Disponibilité > 90 %
-
-### Alerting
-
-* API indisponible
-* Surcharge CPU
-* Anomalie de coûts
+* Densité : 15-20 serveurs/machine
 
 ### Tests de charge
 
-* 50 utilisateurs simultanés
+* 50 créations simultanées
 * Latence P95 < 500 ms
-* Taux d’erreur < 1 %
+* Taux d'erreur < 1 %
 
 ## Documentation complète
 
-* Cahier des charges
+* [Cahier des charges](./docs/CDC_MineHost_v2.6_Simple_Humain.md)
 * Architecture détaillée
 * Sécurité et risques
-* FinOps et budget
-* Roadmap projet
+* Budget et ROI
 * Documentation API
 * Guides développeur
 
 ## Équipe
 
-Projet Fil Rouge – MSc Expert Cybersécurité
+Projet Fil Rouge – MSc Expert Cybersécurité  
 Efrei Campus Bordeaux – 2025–2026
 
 | Rôle                 | Nom            |
@@ -248,14 +240,15 @@ Efrei Campus Bordeaux – 2025–2026
 
 ## Support
 
-* Email : [support@minehost.com](mailto:support@minehost.com)
-* Discord communautaire (on en aura un )
+* Email : support@minehost.com
+* Discord communautaire (à venir)
 * Documentation en ligne
 * Suivi des issues GitHub
 
 ## Licence
 
-Propriété intellectuelle : Aydemir Alper, El Mensi Mehdi
+Propriété intellectuelle : Aydemir Alper, El Mensi Mehdi  
 Usage académique : Efrei Campus Bordeaux – Projet Fil Rouge 2025–2026
 
-MineHost – Hébergement Minecraft sécurisé et performant
+---
+
