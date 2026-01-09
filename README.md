@@ -64,13 +64,16 @@ Docker Network "minecraft-net" (172.20.0.0/16)
 
 | Composant       | Technologie                    | Rôle                                |
 | --------------- | ------------------------------ | ----------------------------------- |
-| Backend API     | Python 3.11, Flask, SQLAlchemy | Orchestration Docker                |
-| Base de données | PostgreSQL 15                  | Gestion utilisateurs, serveurs      |
-| Compute         | Serveur Debian 12              | Hébergement conteneurs              |
-| Isolation       | Docker Engine 24               | Namespaces et cgroups               |
-| Stockage        | Volumes Docker locaux          | Persistance des données             |
-| Sécurité        | OpenVPN, iptables              | Zero Trust                          |
-| IaC             | Docker Compose 2.20            | Déploiement infrastructure          |
+| Backend API     | Python 3.11, Flask, Psycopg2   | Orchestration Docker SDK            |
+| Base de données | PostgreSQL 15 (Alpine)         | Gestion utilisateurs, serveurs      |
+| Compute         | Serveur Debian 12 (Self-Host)  | Hébergement conteneurs              |
+| Isolation       | Docker Engine 24 (cgroups)     | Isolation ressources et processus    |
+| Stockage        | Volumes Locaux + rsync         | Persistance et Backups              |
+
+**Niveau stockage**
+* Volume Docker par serveur (`~/minecraft-automation/servers/{server_name}`)
+* Persistance indépendante du cycle de vie conteneur
+* Backups quotidiens (rsync) à 4h00 vers stockage externe
 
 ### Isolation multi-niveaux
 
