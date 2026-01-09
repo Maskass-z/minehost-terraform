@@ -2,109 +2,355 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>MineHost - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Hôte Minecraft</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .flash { padding: 10px; margin-bottom: 10px; border-radius: 4px; }
-        .success { background: #d4edda; color: #155724; }
-        .danger { background: #f8d7da; color: #721c24; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-        button { cursor: pointer; padding: 5px 10px; border-radius: 4px; border: none; color: white;}
-        .btn-stop { background: #e0a800; }
-        .btn-start { background: #28a745; }
-        .btn-del { background: #dc3545; }
-        .btn-create { background: #007bff; padding: 10px 20px; font-size: 16px;}
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .admin-link {
+            background-color: #ff9800;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .admin-link:hover {
+            background-color: #e68900;
+        }
+        .flashes {
+            list-style: none;
+            padding: 0;
+        }
+        .flashes li {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group small {
+            color: #666;
+            font-size: 0.9em;
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-running {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-stopped {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .action-link {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        .action-link:hover {
+            text-decoration: underline;
+        }
+        .logout-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .logout-link:hover {
+            background-color: #c82333;
+        }
+        .no-servers {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            color: #666;
+        }
+        .server-info {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .char-counter {
+            font-size: 0.85em;
+            color: #666;
+            float: right;
+        }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h1>Bonjour, {{ username }}!</h1>
-        <a href="{{ url_for('logout') }}" style="color:red; text-decoration:none;">Déconnexion</a>
+    <div class="header">
+        <h1>🎮 Mon Hôte Minecraft</h1>
+        <p>Bienvenue, <strong>{{ username|e }}</strong>!</p>
     </div>
+
+    {% if session.is_admin %}
+    <a href="{{ url_for('admin_panel') }}" class="admin-link">⚠️ Panneau d'Administration (Tous les Serveurs)</a>
+    {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
+        <ul class="flashes">
         {% for category, message in messages %}
-          <div class="flash {{ category }}">{{ message }}</div>
+          <li class="{{ category }}">{{ message|e }}</li>
         {% endfor %}
+        </ul>
       {% endif %}
     {% endwith %}
 
-    <div style="background: #e9ecef; padding: 15px; border-radius: 5px;">
-        <h3>Créer un nouveau serveur</h3>
-        <form method="POST" action="{{ url_for('create_server') }}">
-            <input type="text" name="server_name" placeholder="Nom du serveur (ex: survie-1)" required pattern="[a-z0-9-]{3,20}" title="Lettres minuscules, chiffres et tirets uniquement.">
-            
-            <select name="version">
-                <option value="1.21.8">1.21.8 (Latest)</option>
-                <option value="1.20.1">1.20.1</option>
-                <option value="1.19.4">1.19.4</option>
-            </select>
+    <div class="form-container">
+        <h2>🆕 Créer un nouveau serveur Minecraft</h2>
+        
+        <div class="server-info">
+            <strong>ℹ️ Informations importantes :</strong>
+            <ul>
+                <li>Nom : 3-50 caractères (lettres, chiffres, - et _ uniquement)</li>
+                <li>Limite : 5 serveurs maximum par utilisateur</li>
+                <li>IP du serveur : <strong>{{ server_ip|e }}</strong></li>
+            </ul>
+        </div>
 
-            <select name="memory">
-                <option value="512M">512 Mo (Eco)</option>
-                <option value="1G">1 Go (Standard)</option>
-                <option value="2G">2 Go (Pro)</option>
-            </select>
+        <form method="POST" action="{{ url_for('create_server') }}" onsubmit="return validateForm()">
+            <div class="form-group">
+                <label for="server_name">
+                    Nom du Serveur <span style="color: red;">*</span>
+                    <span class="char-counter" id="nameCounter">0/50</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="server_name" 
+                    name="server_name" 
+                    required 
+                    pattern="[a-zA-Z0-9_-]{3,50}"
+                    minlength="3"
+                    maxlength="50"
+                    placeholder="mon-serveur-minecraft"
+                    oninput="updateCounter()"
+                    title="3-50 caractères : lettres, chiffres, tirets et underscores uniquement"
+                >
+                <small>Exemples valides : serveur-pvp, skyblock_2024, prison-op</small>
+            </div>
 
-            <button type="submit" class="btn-create">Créer</button>
+            <div class="form-group">
+                <label for="version">Version Minecraft <span style="color: red;">*</span></label>
+                <select name="version" id="version" required>
+                    <option value="1.21">1.21 (Dernière)</option>
+                    <option value="1.20.1" selected>1.20.1 (Recommandée)</option>
+                    <option value="1.19.4">1.19.4</option>
+                    <option value="1.18.2">1.18.2</option>
+                    <option value="1.17.1">1.17.1</option>
+                    <option value="1.16.5">1.16.5</option>
+                    <option value="LATEST">LATEST (Auto)</option>
+                </select>
+                <small>Sélectionnez la version compatible avec vos plugins</small>
+            </div>
+
+            <div class="form-group">
+                <label for="memory">Mémoire RAM <span style="color: red;">*</span></label>
+                <select name="memory" id="memory" required>
+                    <option value="256M">256 MB (Minimal - 1-2 joueurs)</option>
+                    <option value="512M" selected>512 MB (Petit - 2-5 joueurs)</option>
+                    <option value="1G">1 GB (Moyen - 5-10 joueurs)</option>
+                    <option value="2G">2 GB (Grand - 10-20 joueurs)</option>
+                    <option value="4G">4 GB (Très grand - 20+ joueurs)</option>
+                </select>
+                <small>Plus de mémoire = meilleur performance mais plus de ressources</small>
+            </div>
+
+            <button type="submit">🚀 Créer le Serveur</button>
         </form>
     </div>
 
-    <h2>Vos Serveurs Actifs</h2>
+    <hr style="margin: 30px 0; border: none; border-top: 2px solid #ddd;">
+
+    <h2>📋 Vos Serveurs Actifs</h2>
     {% if servers %}
         <table>
             <thead>
                 <tr>
                     <th>Nom</th>
                     <th>Version</th>
-                    <th>Adresse IP</th>
+                    <th>Port Public</th>
+                    <th>Adresse de Connexion</th>
                     <th>Statut</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-            {% for name, port, version, status, mem in servers %}
+            {% for name, port, version, status in servers %}
                 <tr>
-                    <td><strong>{{ name }}</strong></td>
-                    <td>{{ version }}</td>
-                    <td>20.199.43.125:{{ port }}</td>
+                    <td><strong>{{ name|e }}</strong></td>
+                    <td>{{ version|e }}</td>
+                    <td>{{ port|e }}</td>
+                    <td><code>{{ server_ip|e }}:{{ port|e }}</code></td>
                     <td>
-                        {% if status == 'running' %}
-                            <span style="color:green">● En ligne</span>
-                        {% else %}
-                            <span style="color:red">● Arrêté</span>
-                        {% endif %}
+                        <span class="status-{{ status }}">
+                            {% if status == 'running' %}
+                                🟢 En ligne
+                            {% else %}
+                                🔴 Arrêté
+                            {% endif %}
+                        </span>
                     </td>
                     <td>
-                        <a href="{{ url_for('show_logs', server_name=name) }}" style="text-decoration:none;">📄 Logs</a>
-                        
+                        <a href="{{ url_for('show_logs', server_name=name) }}" class="action-link">📋 Logs</a>
                         {% if status == 'running' %}
-                            <form action="{{ url_for('server_action', action_type='stop', server_name=name) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn-stop">Arrêter</button>
-                            </form>
-                        {% else %}
-                            <form action="{{ url_for('server_action', action_type='start', server_name=name) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn-start">Démarrer</button>
-                            </form>
+                            <a href="{{ url_for('stop_server', server_name=name) }}" class="action-link">⏸️ Arrêter</a>
                         {% endif %}
-
-                        <form action="{{ url_for('server_action', action_type='delete', server_name=name) }}" method="POST" style="display:inline;" onsubmit="return confirm('Vraiment supprimer {{ name }} ? Tout sera perdu.');">
-                            <button type="submit" class="btn-del">Supprimer</button>
-                        </form>
+                        {% if status == 'stopped' %}
+                            <a href="{{ url_for('start_server', server_name=name) }}" class="action-link">▶️ Démarrer</a>
+                        {% endif %}
+                        <a href="{{ url_for('delete_server', server_name=name) }}" 
+                           class="action-link" 
+                           style="color: #dc3545;"
+                           onclick="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer {{ name|e }} ?\n\nCette action est irréversible et supprimera toutes les données du serveur.')">
+                            🗑️ Supprimer
+                        </a>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p>Aucun serveur. Créez-en un au-dessus !</p>
+        <div class="no-servers">
+            <p>📭 Vous n'avez aucun serveur actif.</p>
+            <p>Créez votre premier serveur ci-dessus pour commencer !</p>
+        </div>
     {% endif %}
-</div>
 
+    <a href="{{ url_for('logout') }}" class="logout-link">🚪 Déconnexion</a>
+
+    <script>
+        function updateCounter() {
+            const input = document.getElementById('server_name');
+            const counter = document.getElementById('nameCounter');
+            const length = input.value.length;
+            counter.textContent = length + '/50';
+            
+            if (length < 3) {
+                counter.style.color = '#dc3545';
+            } else if (length > 45) {
+                counter.style.color = '#ff9800';
+            } else {
+                counter.style.color = '#28a745';
+            }
+        }
+
+        function validateForm() {
+            const serverName = document.getElementById('server_name').value;
+            const pattern = /^[a-zA-Z0-9_-]{3,50}$/;
+            
+            if (!pattern.test(serverName)) {
+                alert('❌ Nom invalide !\n\nLe nom doit contenir:\n- 3 à 50 caractères\n- Uniquement des lettres, chiffres, tirets (-) ou underscores (_)\n\nExemples valides:\n✅ mon-serveur\n✅ skyblock_v2\n✅ prison2024');
+                return false;
+            }
+            
+            if (serverName.includes('..')) {
+                alert('❌ Le nom ne peut pas contenir ".."');
+                return false;
+            }
+            
+            if (serverName.includes('/') || serverName.includes('\\')) {
+                alert('❌ Le nom ne peut pas contenir "/" ou "\\"');
+                return false;
+            }
+            
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCounter();
+        });
+    </script>
 </body>
 </html>
