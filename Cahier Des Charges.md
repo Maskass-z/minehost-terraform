@@ -412,25 +412,13 @@ Break-even : 3 clients seulement pour couvrir tes factures d'électricité.
 
 ## 14. LES TESTS
 
-### Tests de sécurité
+**Test "Noisy Neighbor" (Isolation)** : On sature le CPU d'un conteneur à 100% avec un script de calcul.
 
-**SAST (analyse statique)** : Bandit sur le code Python, intégré dans CI/CD  
-**DAST (analyse dynamique)** : OWASP ZAP toutes les semaines sur l'environnement de staging  
-**Scans des conteneurs** : Trivy quotidiennement pour détecter les CVE  
-**Pentest externe** : En semaine 9, budget 5000€
+**Critère de succès** : L'API Flask et les autres serveurs Minecraft répondent toujours grâce aux limites cgroups (cpu_quota).
 
-### Tests de charge
+**Vérification OpenVPN** : Test de "Leak" pour vérifier qu'aucun port (5000 ou 5432) n'est exposé sur ton IP publique Orange/SFR/Free.
 
-Locust avec 1000 utilisateurs simultanés. Objectif :
-- 1000 requêtes par seconde soutenues
-- Taux d'erreur < 1%
-- Latence percentile 95 < 500ms
-
-### Tests de chaos
-
-On simule des pannes :
-- Kill de 20% des conteneurs → Doivent redémarrer en moins de 30 secondes
-- Saturation CPU → Les autres conteneurs doivent continuer de fonctionner
+**Coupure Électrique** : Test de redémarrage automatique du PC et de tous les conteneurs au retour du courant (Bios : Restore on AC Power Loss).
 
 ---
 
@@ -448,17 +436,6 @@ On simule des pannes :
 **P2 (service dégradé)** : Réponse en moins de 4 heures  
 **P3 (question)** : Réponse en moins de 24 heures
 
-### Disaster Recovery
-
-**Objectifs** : RTO (temps de récupération) de 1 heure, RPO (perte de données) de 24 heures
-
-**Procédure en cas de panne serveur** :
-1. Détection (T+0) : Alerte automatique
-2. Commander un nouveau serveur (T+5min)
-3. Restaurer les backups (T+15min)
-4. Redéployer avec docker-compose (T+30min)
-5. Validation (T+45min)
-6. Communication aux clients (T+60min)
 
 ---
 
@@ -470,42 +447,60 @@ On utilise Docker Compose pour tout :
 
 ```yaml
 version: '3.8'
-services:
-  api:
-    build: ./backend
-    ports: ["5000:5000"]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock  
-    environment:
-      - DB_HOST=postgres
-      - DB_PASSWORD=${DB_PASSWORD}
-  
-  postgres:
-    image: postgres:15
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-  
-  nginx:
-    image: nginx:alpine
-    ports: ["80:80", "443:443"]
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt:/etc/letsencrypt
 
+services:
+  # L'API Backend (Ton code Flask)
+  api_server:
+    container_name: minecraft-api
+    build: 
+      context: ./api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Permet à l'API de piloter Docker
+      - ./api:/home/app                            # Volume de dev pour mise à jour live
+    environment:
+      - DB_HOST=api-database
+      - DB_NAME=minecraft_db
+      - DB_USER=maskass
+      - DB_PASS=${DB_PASSWORD}
+      - SERVER_IP=10.8.0.2                         # IP de ton tunnel VPN
+    networks:
+      - minecraft-net
+
+  # La Base de données PostgreSQL
+  postgres_db:
+    container_name: api-database
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=minecraft_db
+      - POSTGRES_USER=maskass
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - minecraft-net
+
+# Gestion du réseau et des volumes
 networks:
   minecraft-net:
+    name: minecraft-automation_network
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
 
 volumes:
-  pgdata:
+  postgres_data:
 ```
 
-**Déploiement** : `docker-compose up -d`
+**Déploiement et Maintenance**
+**Commande de mise à jour flash : Pour mettre à jour ton code sans tout couper :**
+
+docker compose up -d --build api_server
+
+**Vérification de l'état :**
+
+docker compose ps
 
 ---
 
