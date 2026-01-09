@@ -125,7 +125,7 @@ Article 17 (droit à l'oubli) : `DELETE /api/account` supprime tout.
 - **BUS-001** (Sécurité) → VPN OpenVPN + Zero Trust → Validé par pentest
 - **BUS-002** (Marge 85%) → Mutualisation Docker → Suivi FinOps
 - **USR-002** (Connexion <2min) → VPN auto-configuré + provisioning rapide → Test end-to-end
-- **TEC-002** (Isolation) → Docker namespaces + iptables → Test "noisy neighbor"
+- **TEC-002** (Isolation) → Conteneur docker + iptables → Test "noisy neighbor"
 - **SEC-003** (Cloaking) → VPN seul accès, pas d'IP publique → Test connexion directe
 
 ---
@@ -197,7 +197,7 @@ Le workflow :
 3. Il se connecte au VPN
 4. Il peut accéder à son serveur via l'IP privée Docker
 
-### Durcissement Docker (CIS Benchmark)
+### Durcissement Docker
 
 - **User non-root** : Les conteneurs tournent avec UID 1000
 
@@ -225,7 +225,7 @@ Marge brute : En vendant l'accès 10€, la marge dépasse les 65%, atteignant l
 
 On a comparé plusieurs solutions :
 
-**Self-Hosting vs Cloud Azure vs Kubernetes**
+**Self-Hosting vs Cloud Azure**
 
 Self-Hosting (notre choix) :
 - Coûts : 55€/mois (VPS) ou 150€/mois (dédié) ou 1000€ Serveur privé
@@ -238,12 +238,6 @@ Cloud Azure :
 - Géré par Microsoft (moins de contrôle)
 - Interface graphique simple
 - Score : 7/10
-
-Kubernetes :
-- Coûts : Élevés (overhead du cluster)
-- Très complexe
-- Sur-dimensionné pour notre besoin
-- Score : 5.3/10
 
 **Pourquoi Docker Compose ?**  
 Simple, déclaratif, reproductible. On évite la complexité de Kubernetes.
@@ -358,8 +352,6 @@ Break-even : 3 clients seulement pour couvrir tes factures d'électricité.
 
 **Test "Noisy Neighbor" (Isolation)** : On sature le CPU d'un conteneur à 100% avec un script de calcul.
 
-**Critère de succès** : L'API Flask et les autres serveurs Minecraft répondent toujours grâce aux limites cgroups (cpu_quota).
-
 **Vérification OpenVPN** : Test de "Leak" pour vérifier qu'aucun port (5000 ou 5432) n'est exposé sur ton IP publique Orange/SFR/Free.
 
 **Coupure Électrique** : Test de redémarrage automatique du PC et de tous les conteneurs au retour du courant (Bios : Restore on AC Power Loss).
@@ -410,6 +402,5 @@ docker compose ps
 - Flask : flask.palletsprojects.com
 - OpenVPN : openvpn.net
 - Minecraft : github.com/itzg/docker-minecraft-server
-
 
 ---
