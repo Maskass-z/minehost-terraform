@@ -1,7 +1,5 @@
-# --- SÉCURITÉ (NE JAMAIS ENLEVER) ---
 .env
 
-# --- Python ---
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,14 +7,11 @@ venv/
 .venv/
 env/
 
-# --- Docker & Données ---
-# On ignore les données de la BDD et des serveurs Minecraft
-# pour ne pas uploader 50Go de données sur GitHub
 db_data/
 api/servers_data/
 minecraft_data/
 
-# --- IDE (VS Code, etc.) ---
 .vscode/
 .idea/
+
 *.swp
