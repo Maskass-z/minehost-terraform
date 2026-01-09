@@ -1,169 +1,144 @@
 # CAHIER DES CHARGES TECHNIQUE  
-**PROJET MINEHOST : Infrastructure Cloud-Native Azure & Sécurité**
+**PROJET MINEHOST**
 
-**Projet** : Plateforme SaaS d'Hébergement de Serveurs Minecraft  
-**Date** : 07 Janvier 2026  
-**Auteurs** : Aydemir Alper, El Mensi Mehdi  
-**Cible** : Direction Technique, Équipe DevOps, Audit de Sécurité
+**Auteurs** : Aydemir Alper, El Mensi Mehdi | **Date** : 07 Janvier 2026
 
 ---
 
-##  EXECUTIVE SUMMARY
+## RÉSUMÉ EXÉCUTIF
 
-**Vision** : Plateforme d'hébergement Minecraft automatisée avec isolation maximale, provisioning < 2 minutes, et VPN obligatoire pour une sécurité inégalée.
+On crée une plateforme d'hébergement Minecraft sécurisée, self-hosted sur serveur Debian avec Docker. Le but : provisioning en moins de 2 minutes, accès via VPN uniquement (pas d'IP publique exposée), et facturation à la seconde.
 
-**Différenciation** :
--  **Sécurité** : Architecture Zero Trust + VPN (infrastructure invisible depuis Internet)
--  **Performance** : Provisioning < 2 min, isolation Docker multi-niveaux
--  **Économie** : Mutualisation VMs (10-15 conteneurs/VM) + auto-shutdown
-
-**Financier** : OPEX 520€/mois (100 serveurs), CA 999€/mois → Marge 48% | Break-even : 53 clients
-
----
-
-## SOMMAIRE
-
-**PARTIE 1 : ANALYSE DES BESOINS**
-1. Contexte et Collecte | 2. Besoins Fonctionnels | 3. Contraintes Techniques
-
-**PARTIE 2 : SPÉCIFICATIONS TECHNIQUES**  
-4. Architecture Logicielle | 5. Infrastructure Azure | 6. Sécurité | 7. FinOps | 8. Justification Choix | 9. Risques & Opportunités | 10. KPIs | 11. Planning | 12. RGPD | 13. Budget/ROI | 14. Tests | 15. Maintenance | 16. Administration
+**Les chiffres** : Pour 100 clients, on dépense 55€/mois et on fait 999€ de CA. Ça fait 94% de marge. Break-even à 6 clients.
 
 ---
 
 # PARTIE 1 : ANALYSE DES BESOINS
 
-## 1. CONTEXTE ET COLLECTE DES BESOINS
+## 1. COMMENT ON A COLLECTÉ LES BESOINS
 
-### 1.1. Méthodologie (4 semaines)
+On a fait 4 phases sur 4 semaines :
 
-**Phase 1 - Étude documentaire** : 15 hébergeurs analysés, 250 avis clients, 8 rapports d'incidents sécurité  
-**Constats** : 78% insatisfaits sécurité, 65% subissent pannes >30min, hébergeurs low-cost = VPS mutualisés sans isolation
+**Phase 1 - Étude documentaire**  
+On a analysé 15 hébergeurs concurrents et lu 250 avis clients. Résultat : 78% des gens sont insatisfaits de la sécurité. Les hébergeurs low-cost c'est du VPS mutualisé sans vraie isolation.
 
-**Phase 2 - Interviews** : 20 utilisateurs (8 joueurs occasionnels, 7 communautés moyennes, 5 admins experts)  
-**Citations clés** :  
-> *"DDoS 3 fois ce mois, l'hébergeur n'a rien fait"* - Admin 50 joueurs  
-> *"Je paie 15€/mois mais lag quand un voisin abuse du CPU"* - Admin expérimenté
+**Phase 2 - Interviews**  
+On a interviewé 20 utilisateurs : 8 joueurs occasionnels, 7 gérants de communautés moyennes, 5 admins experts. Ce qui ressort :
+- *"J'ai eu 3 DDoS ce mois-ci, l'hébergeur n'a rien fait"* - Admin avec 50 joueurs
+- *"Je paie 15€/mois mais j'ai des lags quand un voisin abuse du CPU"* - Admin expérimenté
 
-**Phase 3 - Questionnaire** : 50 répondants, taux réponse 68% (34 exploitables)  
-**Résultats** : 82% trouvent config trop complexe, 91% intéressés par tarif à l'usage, 87% acceptent VPN pour sécurité
+**Phase 3 - Questionnaire**  
+31 réponses (68% de taux de réponse). Les insights :
+- 82% trouvent la config actuelle trop compliquée
+- 91% sont intéressés par une tarification à l'usage
+- 87% acceptent d'utiliser un VPN si ça améliore la sécurité
 
-**Phase 4 - Analyse technique** : Audit 5 hébergeurs (3/5 vulnérables injection SQL, 4/5 FTP en clair)
+**Phase 4 - Audit technique**  
+On a audité 5 hébergeurs. 3 sur 5 sont vulnérables aux injections SQL, 4 sur 5 utilisent du FTP en clair.
 
-### 1.2. Marché & Concurrence
+### Les besoins qu'on a identifiés
 
-| Concurrent | Part | Prix 2GB | Forces | Faiblesses |
-|------------|------|----------|--------|------------|
-| **Apex Hosting** | 22% | 7.49€ | Support 24/7 | Mutualisation (perf variables) |
-| **Shockbyte** | 18% | 2.50€ | Prix bas | Sécurité faible, downtimes |
-| **Auto-hébergement** | 35% | Gratuit | Gratuit | Sécurité très faible |
+**Côté business** :
+- BUS-001 : Être plus sécurisé que les concurrents
+- BUS-002 : Avoir minimum 85% de marge
+- BUS-003 : Pouvoir scaler jusqu'à 1000 serveurs par an
 
-**Notre positionnement** : Sécurité Premium (VPN unique), Provisioning <2min, Isolation garantie Docker+NSG
+**Côté utilisateur** :
+- USR-001 : Une interface web simple, pas de ligne de commande
+- USR-002 : Se connecter en moins de 2 minutes
+- USR-003 : 99% de disponibilité minimum
 
-### 1.3. Besoins Recueillis
+**Côté technique** :
+- TEC-001 : Infrastructure basée sur Docker
+- TEC-002 : Isolation stricte entre les serveurs
+- TEC-003 : Sauvegardes automatiques
 
-| Type | Besoin | Code |
-|------|--------|------|
-| **Business** | Sécurité > concurrents | BUS-001 |
-| | Marge 45% min | BUS-002 |
-| | Scaler 1000 serveurs/an | BUS-003 |
-| **Utilisateur** | Interface Web simple | USR-001 |
-| | Connexion < 2min | USR-002 |
-| | Disponibilité 99.5% | USR-003 |
-| **Technique** | Cloud-Native | TEC-001 |
-| | Isolation stricte | TEC-002 |
-| | Auto-backup | TEC-003 |
-| **Sécurité** | Protection DDoS | SEC-001 |
-| | Chiffrement E2E | SEC-002 |
-| | Cloaking VPN | SEC-003 |
-
----
-
-## 2. EXPRESSION DES BESOINS FONCTIONNELS
-
-### 2.1. Objectifs
-
-**Principal** : Déployer un serveur Minecraft sécurisé sans compétence technique, facturation à l'usage
-
-**Secondaires** : Config <2min (vs 30min marché) | 0 incident sécu année 1 | NPS >50
-
-### 2.2. User Stories (Exemples)
-
-**US-001 - Création compte**
-> *"En tant que visiteur, je veux créer un compte rapidement pour accéder à la plateforme"*
-
-**Scénario** : Email + MDP (12 chars) → Confirmation email (24h) → Compte activé  
-**Critères** : MDP haché Scrypt | Email <5s | RGPD checkbox obligatoire
-
-**US-002 - Commander serveur**
-> *"En tant qu'utilisateur, je veux commander un serveur en quelques clics pour jouer rapidement"*
-
-**Scénario** : Nom (a-z0-9-) + RAM (2/4/8GB) + Version MC → Provisioning 45s → VPN config (.ovpn) → IP privée (10.0.2.x:25565)  
-**Critères** : Provisioning <2min (P95) | Accès VPN uniquement | Logs temps réel
-
-**US-003 - Arrêt serveur**
-> *"En tant qu'utilisateur, je veux arrêter mon serveur pour ne pas être facturé inutilement"*
-
-**Scénario** : Clic "Arrêter" → Sauvegarde auto → Stop conteneur Docker 10s → Facturation s'arrête  
-**Critères** : Save automatique | Facturation précise | Redémarrage <30s
-
-### 2.3. Exigences Fonctionnelles (Synthèse)
-
-| Module | ID | Exigence | Priorité | Validation |
-|--------|----|---------|---------|-----------| 
-| **Auth** | EXI-001 | Création compte email/MDP | Critique | 100 comptes/10min |
-| | EXI-002 | MDP hachés Scrypt | Critique | Audit BDD |
-| **Serveurs** | EXI-006 | Provisioning <60s | Critique | 50 créations simultanées |
-| | EXI-007 | Choix RAM 2/4/8GB | Haute | `docker stats` |
-| | EXI-009 | Start/Stop à volonté | Critique | 100 cycles sans erreur |
-| | EXI-010 | Sauvegarde auto à l'arrêt | Critique | Vérif level.dat |
-| **Facturation** | EXI-014 | Facturation à la seconde | Critique | 1h = 60×prix/s |
-| | EXI-016 | Paiement Stripe sécurisé | Critique | PCI-DSS compliant |
-| **Sécurité** | EXI-018 | Serveurs accessibles VIA VPN uniquement | Critique | Test connexion directe = refusé |
-| | EXI-019 | VPN certificats X.509 | Critique | Pentest brute-force |
-| | EXI-020 | Conteneurs non-root (UID 1000) | Haute | `docker exec ps aux` |
+**Côté sécurité** :
+- SEC-001 : Protection contre les DDoS
+- SEC-002 : Chiffrement bout en bout
+- SEC-003 : Serveurs invisibles depuis Internet (cloaking via VPN)
 
 ---
 
-## 3. CONTRAINTES ET EXIGENCES TECHNIQUES
+## 2. BESOINS FONCTIONNELS
 
-### 3.1. Sécurité (Conformité : ISO 27001, OWASP Top 10, CIS Docker)
+### User Stories (exemples)
 
-| ID | Contrainte | Solution |
-|----|-----------|----------|
-| **SEC-C01** | Pas de secrets en dur | Azure Key Vault + Managed Identity |
-| **SEC-C02** | Chiffrement AES-256 repos | Azure Storage Service Encryption |
-| **SEC-C03** | TLS 1.3 obligatoire | Nginx + Let's Encrypt |
-| **SEC-C04** | Protection injection SQL | SQLAlchemy (requêtes paramétrées) |
-| **SEC-C05** | Rate limiting 10 req/s/IP | Flask-Limiter + Redis |
+**US-001 - Créer un compte**  
+Un visiteur arrive sur le site, entre son email et un mot de passe (minimum 12 caractères), reçoit un email de confirmation sous 5 secondes, et son compte est activé sous 24h.
 
-### 3.2. Performance
+**US-002 - Commander un serveur**  
+L'utilisateur choisit un nom (lettres minuscules et chiffres uniquement), sélectionne la RAM (2, 4 ou 8GB), et clique sur "Créer". Le provisioning prend environ 45 secondes. Il reçoit un fichier .ovpn pour se connecter au VPN, et une IP privée du type 10.0.2.x:25565 pour accéder à son serveur.
 
-| ID | Contrainte | Seuil | Impact si échec |
-|----|-----------|-------|----------------|
-| **PERF-C01** | Provisioning serveur | <60s (P95) | Perte avantage concurrentiel |
-| **PERF-C02** | Latence API | <200ms (P95) | Mauvaise UX |
-| **PERF-C04** | Disponibilité API | 99.5% | Pénalités SLA |
-| **PERF-C05** | Densité conteneurs/VM | 10-15 | Coûts élevés |
+**US-003 - Arrêter le serveur**  
+L'utilisateur clique sur "Arrêter". Le système fait une sauvegarde automatique, stoppe le conteneur Docker en 10 secondes, et la facturation s'arrête immédiatement.
 
-### 3.3. RGPD
+### Les exigences principales
 
-| Article | Contrainte | Implémentation |
-|---------|-----------|----------------|
-| **Art. 5** | Minimisation données | Email + MDP uniquement |
-| **Art. 15** | Droit d'accès | `GET /api/user/data` (JSON) |
-| **Art. 17** | Droit à l'oubli | `DELETE /api/account` (cascade 7j) |
-| **Art. 32** | Mesures techniques | Chiffrement + audits |
+**Authentification** :
+- EXI-001 : Créer un compte avec email + mot de passe
+- EXI-002 : Les mots de passe sont hachés avec Scrypt (pas de plaintext en base)
 
-### 3.4. Matrice de Traçabilité Besoins → Solutions
+**Gestion des serveurs** :
+- EXI-006 : Provisioning en moins de 60 secondes
+- EXI-007 : Choix de RAM : 2GB, 4GB ou 8GB
+- EXI-009 : Start/Stop à volonté, autant de fois qu'on veut
+- EXI-010 : Sauvegarde automatique à chaque arrêt
 
-| Besoin | Solution Technique | Validation |
-|--------|-------------------|------------|
-| **BUS-001** : Sécurité > concurrents | Zero Trust + VPN Cloaking | Pentest externe |
-| **BUS-002** : Marge 45% | Mutualisation VMs 10-15 conteneurs | Suivi FinOps |
-| **USR-002** : Connexion <2min | VPN auto + provisioning rapide | Chronomètre E2E |
-| **TEC-002** : Isolation stricte | Docker namespaces + NSG | Test noisy neighbor |
-| **SEC-003** : Cloaking | VPN obligatoire, aucune IP publique | Test connexion directe |
+**Facturation** :
+- EXI-014 : Facturation à la seconde (1 heure = 60 × prix par seconde)
+- EXI-016 : Paiement via Stripe (PCI-DSS compliant)
+
+**Sécurité** :
+- EXI-018 : Les serveurs sont accessibles UNIQUEMENT via VPN
+- EXI-019 : VPN avec certificats X.509 (pas de mots de passe)
+- EXI-020 : Les conteneurs tournent en non-root (UID 1000)
+
+---
+
+## 3. CONTRAINTES TECHNIQUES
+
+### Sécurité (conforme OWASP Top 10, CIS Docker)
+
+**SEC-C01** : Pas de secrets en dur dans le code  
+→ Solution : Fichier .env avec variables d'environnement
+
+**SEC-C02** : Chiffrement AES-256 au repos  
+→ Solution : LUKS pour chiffrer les disques
+
+**SEC-C03** : TLS 1.3 obligatoire  
+→ Solution : Nginx avec Let's Encrypt
+
+**SEC-C04** : Protection contre les injections SQL  
+→ Solution : SQLAlchemy avec requêtes paramétrées (ORM)
+
+**SEC-C05** : Rate limiting de 10 requêtes par seconde par IP  
+→ Solution : Flask-Limiter + Redis
+
+### Performance
+
+**PERF-C01** : Provisioning en moins de 60 secondes (percentile 95)  
+Si on dépasse, on perd notre avantage compétitif.
+
+**PERF-C02** : Latence API sous 200ms (percentile 95)  
+Si on dépasse, l'expérience utilisateur devient mauvaise.
+
+**PERF-C04** : Disponibilité de 99% minimum  
+Si on descend en dessous, on a des pénalités SLA.
+
+### RGPD
+
+Article 5 (minimisation des données) : On ne stocke que l'email et le mot de passe.  
+Article 15 (droit d'accès) : `GET /api/user/data` renvoie toutes les données de l'utilisateur.  
+Article 17 (droit à l'oubli) : `DELETE /api/account` supprime tout.
+
+### Traçabilité : Besoin → Solution
+
+- **BUS-001** (Sécurité) → VPN OpenVPN + Zero Trust → Validé par pentest
+- **BUS-002** (Marge 85%) → Mutualisation Docker → Suivi FinOps
+- **USR-002** (Connexion <2min) → VPN auto-configuré + provisioning rapide → Test end-to-end
+- **TEC-002** (Isolation) → Docker namespaces + iptables → Test "noisy neighbor"
+- **SEC-003** (Cloaking) → VPN seul accès, pas d'IP publique → Test connexion directe
 
 ---
 
@@ -171,329 +146,473 @@
 
 ## 4. ARCHITECTURE LOGICIELLE
 
-### 4.1. Stack Technique
-**Backend** : Python 3.11 + Flask 3.0.0 + SQLAlchemy 2.0  
-**BDD** : PostgreSQL 15 (Azure Database)  
-**Frontend** : Vue.js 3 + Tailwind CSS  
-**Auth** : Flask-Login + Scrypt  
-**WebSocket** : Flask-SocketIO (logs temps réel)  
-**Orchestration** : Docker SDK Python (`docker-py`)
+### La stack
 
-### 4.2. Logique d'Orchestration (Simplifié)
+- **Backend** : Python 3.11 + Flask 3.0
+- **Base de données** : PostgreSQL 15
+- **Frontend** : Vue.js 3
+- **Orchestration** : Docker SDK Python
+- **Logs temps réel** : Flask-SocketIO
+
+### Comment ça marche (code simplifié)
 
 ```python
-docker_clients = {
-    "vm-host-01": docker.DockerClient(base_url="tcp://10.0.2.10:2375"),
-    "vm-host-02": docker.DockerClient(base_url="tcp://10.0.2.11:2375"),
-    "vm-host-03": docker.DockerClient(base_url="tcp://10.0.2.12:2375"),
-}
+import docker
+import subprocess
+import re
 
-def create_server(user_id, server_name, ram_size):
-    if not re.match(r"^[a-z0-9-]{3,20}$", server_name):
+client = docker.from_env()
+
+def create_server(user_id, name, ram):
+    if not re.match(r"^[a-z0-9-]{3,20}$", name):
         raise SecurityException("Nom invalide")
     
     if get_user_server_count(user_id) >= 5:
-        raise QuotaExceededException()
+        raise QuotaExceededException("Limite atteinte")
     
-    target_vm = select_least_loaded_vm(docker_clients)
+    compose_yaml = f"""
+version: '3.8'
+services:
+  minecraft-{user_id}-{name}:
+    image: itzg/minecraft-server:latest
+    environment:
+      EULA: "TRUE"
+      VERSION: "1.20.4"
+      MEMORY: "{ram}G"
+    volumes:
+      - ./data/{user_id}/{name}:/data
+    mem_limit: {ram}g
+    user: "1000:1000"
+    security_opt:
+      - no-new-privileges
+"""
     
-    volume_name = f"vol-{user_id}-{uuid.uuid4().hex[:8]}"
-    azure_storage.create_file_share(volume_name, quota=10)
+    os.makedirs(f"/opt/minehost/servers/{user_id}-{name}", exist_ok=True)
+    with open(f"/opt/minehost/servers/{user_id}-{name}/docker-compose.yml", "w") as f:
+        f.write(compose_yaml)
     
-    container = docker_clients[target_vm].containers.run(
-        image="itzg/minecraft-server:latest",
-        name=f"{user_id}-{server_name}",
-        environment={"EULA": "TRUE", "VERSION": "1.20.4"},
-        volumes={volume_name: {"bind": "/data", "mode": "rw"}},
-        mem_limit=f"{ram_size}g",
-        user="1000:1000",  # Non-root
-        security_opt=["no-new-privileges"]
-    )
+    subprocess.run([
+        "docker-compose",
+        "-f", f"/opt/minehost/servers/{user_id}-{name}/docker-compose.yml",
+        "up", "-d"
+    ])
     
-    return {"status": "running", "private_ip": f"{container_ip}:25565"}
+    container = client.containers.get(f"minecraft-{user_id}-{name}")
+    ip = container.attrs['NetworkSettings']['Networks']['minecraft-net']['IPAddress']
+    
+    return {"status": "running", "ip": f"{ip}:25565"}
 ```
 
-### 4.3. Sécurisation Code
-- **Input Validation** : Regex `^[a-z0-9-]{3,20}$`
-- **CSRF** : Jetons anti-CSRF sur POST/PUT/DELETE
-- **BOLA/IDOR** : `if server.owner_id != current_user.id: abort(403)`
-- **Rate Limiting** : 10 req/s/IP
+### Sécurisation du code
+
+- **Validation des inputs** : Regex `^[a-z0-9-]{3,20}$` pour les noms
+- **Protection CSRF** : Jetons anti-CSRF sur tous les POST/PUT/DELETE
+- **Protection BOLA/IDOR** : Vérification `if server.owner_id != current_user.id: abort(403)`
+- **Rate limiting** : 10 requêtes par seconde par IP
 
 ---
 
-## 5. INFRASTRUCTURE AZURE
+## 5. INFRASTRUCTURE SELF-HOSTED
 
-### 5.1. Compute : VMs + Docker
+### Le serveur
 
-**Architecture** : 3 VMs Ubuntu 24.04 (Standard_D4s_v3 : 4 vCPU, 4GB RAM)  
-**Mutualisation** : 10-15 conteneurs Minecraft/VM  
-**Avantages** : Provisioning 5-10s (image pré-pullée) | Coût optimisé | Scalabilité Terraform
+On a un serveur Debian 12 (bare metal ou VPS) :
+- **CPU** : 12 vCPU
+- **RAM** : 32GB
+- **Disque** : 512GB SSD
+- **Docker** : Engine 24.0 + Docker Compose 2.20
 
-**Isolation** : Namespaces Linux (PID, NET, MNT) + cgroups (CPU/RAM) + NSG réseau
+Capacité : 15-20 serveurs Minecraft simultanés.
 
-### 5.2. Stockage : Azure Files
+L'isolation est faite par Docker : namespaces Linux (PID, NET, MNT) + cgroups pour limiter CPU et RAM + iptables pour le réseau.
 
-**Type** : Premium Files SSD | **Redondance** : ZRS (3 copies/3 zones) | **Protocole** : SMB 3.0 chiffré  
-**Workflow** : Création serveur → File Share unique → Monté `/data` → Survit arrêt conteneur
+### Le stockage
 
-### 5.3. Réseau : VNet & NSG
+Les données sont stockées dans des volumes Docker locaux : `/opt/minehost/data/{user_id}/{server_name}`
 
+Ça persiste même si le conteneur est arrêté ou supprimé.
+
+**Backups automatiques** : Un script rsync tourne tous les jours à 4h du matin et copie tout vers un stockage externe.
+
+```bash
+rsync -avz /opt/minehost/data/ /backup/daily/$(date +%Y%m%d)/
 ```
-Internet → [VPN Gateway X.509] → VNet 10.0.0.0/16
-    ├── Subnet VPN (10.0.1.0/24)
-    ├── Subnet VMs (10.0.2.0/24) ← 3 VMs Docker
-    ├── Subnet Data (10.0.3.0/24) ← PostgreSQL + Azure Files
-    └── NSG : DENY Internet → VMs | ALLOW VPN → VMs port 25565
+
+### Le réseau
+
+**Architecture** :
+```
+Internet 
+    ↓
+[OpenVPN Server]
+    ↓
+Réseau Docker "minecraft-net" (172.20.0.0/16)
+    ↓
+Conteneurs Minecraft (172.20.0.x) + PostgreSQL (172.20.0.2)
 ```
 
-**Cloaking** : VMs sans IP publique = Invisibles Shodan/scans automatiques
+**Règles firewall (iptables)** :
+
+On bloque TOUT par défaut :
+```bash
+iptables -P INPUT DROP
+iptables -A INPUT -i lo -j ACCEPT  
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT  
+iptables -A INPUT -p tcp --dport 2222 -j ACCEPT 
+iptables -A INPUT -p udp --dport 1194 -j ACCEPT  
+```
+
+Pas d'accès direct aux conteneurs depuis Internet :
+```bash
+iptables -A FORWARD -i eth0 -o docker0 -j DROP  
+iptables -A FORWARD -i tun0 -o docker0 -j ACCEPT  
+```
+
+**OpenVPN** :
+```conf
+port 1194
+proto udp
+dev tun
+server 10.8.0.0 255.255.255.0
+push "route 172.20.0.0 255.255.0.0"  
+cipher AES-256-GCM
+user nobody
+group nogroup
+```
 
 ---
 
-## 6. STRATÉGIE DE SÉCURITÉ
+## 6. SÉCURITÉ
 
-### 6.1. Zero Trust & VPN
+### Zero Trust & VPN
 
-**Implémentation** :  
-- OpenVPN Server (subnet VPN 10.0.1.0/24)  
-- Auth certificats X.509 uniques/user (pas MDP)  
-- Workflow : Commande serveur → Génération certif → DL fichier `.ovpn` → Connexion VPN → Accès IP privée
+On a un serveur OpenVPN qui tourne sur le serveur principal. L'authentification se fait uniquement par certificats X.509 (pas de mots de passe). Les certificats sont générés avec EasyRSA.
 
-**Bénéfice** : 0 DDoS Layer 3/4 | 0 scans ports | Audit trail complet
+Le workflow :
+1. L'utilisateur commande un serveur
+2. L'API génère un certificat client unique
+3. L'utilisateur télécharge le fichier .ovpn
+4. Il se connecte au VPN
+5. Il peut accéder à son serveur via l'IP privée Docker
 
-### 6.2. Durcissement Docker (CIS Benchmark)
+### Durcissement Docker (CIS Benchmark)
 
-| Règle | Implémentation |
-|-------|----------------|
-| User non-root | `--user=1000:1000` |
-| Capabilities drop | `--cap-drop=ALL --cap-add=NET_BIND_SERVICE` |
-| Read-only rootfs | `--read-only --tmpfs /tmp` |
-| No new privileges | `--security-opt=no-new-privileges` |
+- **User non-root** : Les conteneurs tournent avec UID 1000
+- **Capabilities drop** : On enlève toutes les capabilities sauf NET_BIND_SERVICE
+- **Read-only rootfs** : Le système de fichiers root est en lecture seule (sauf /data et /tmp)
+- **no-new-privileges** : Empêche l'escalade de privilèges
 
-**Scan CVE** : `trivy image --severity CRITICAL itzg/minecraft-server:latest` (quotidien)
+### Gestion des secrets
 
-### 6.3. Secrets & Identités
+On utilise un fichier `.env` (qui est dans .gitignore) :
 
-- **Azure Key Vault** : Secrets BDD, clés API, certificats VPN  
-- **Managed Identity** : VMs auth auto (pas de clé stockée)  
-- **Rotation** : Secrets régénérés tous les 90j
+```python
+DB_PASSWORD=mon_super_mot_de_passe
+SECRET_KEY=ma_cle_secrete
+STRIPE_API_KEY=sk_test_...
 
----
+from dotenv import load_dotenv
+import os
 
-## 7. MODÈLE FINOPS
-
-### 7.1. Mutualisation VMs
-
-**Calcul** : 3 VMs × 0.196€/h × 730h = 429€/mois (VMs 24/7)  
-**Densité** : ~30 serveurs (10/VM) → 14.3€/serveur/mois si actifs 24/7  
-**Avec auto-shutdown** (4h/jour) : 14.3€ × 17% = **2.4€/serveur/mois**
-
-### 7.2. Auto-Shutdown
-
-**Watchdog RCON** (toutes les 5min) : Interroge serveur via `list` → Si 0 joueur pendant 15min → Sauvegarde + Stop conteneur → Facturation s'arrête
-
-**Économie** : ~83% coûts compute (17% du temps facturé)
+load_dotenv()
+db_password = os.getenv('DB_PASSWORD')
+```
 
 ---
 
-## 8. JUSTIFICATION DES CHOIX
+## 7. FINOPS (optimisation des coûts)
 
-### 8.1. Matrice de Décision
+### Mutualisation
 
-| Critère (Poids) | VMs+Docker  | ACI Serverless | K8s AKS |
-|-----------------|--------------|----------------|---------|
-| **Sécurité** (30%) | 8/10 | 9/10 | 6/10 |
-| **Coûts** (25%) | **9/10** | 6/10 | 5/10 |
-| **Simplicité** (20%) | **9/10** | 9/10 | 4/10 |
-| **Performance** (15%) | **9/10** | 7/10 | 8/10 |
-| **Scalabilité** (10%) | 7/10 | 9/10 | 10/10 |
-| **TOTAL** | **8.45/10** | 7.75 | 5.8 |
+On a 1 serveur qui héberge 15-20 conteneurs Minecraft simultanés. Coût du serveur :
+- VPS : environ 50€/mois
+- Dédié : environ 150€/mois
 
-**Décision** : VMs+Docker pour mutualisation (coûts) + simplicité opérationnelle
+### Auto-Shutdown (économie de ressources)
 
-### 8.2. Justifications Clés
+On a un watchdog qui tourne toutes les 5 minutes. Il check via RCON combien il y a de joueurs sur chaque serveur. Si un serveur a 0 joueur pendant 15 minutes, on le stoppe automatiquement avec `docker-compose stop`. La facturation s'arrête.
 
-**VMs+Docker** : Provisioning 5-10s | Mutualisation 10-15 conteneurs/VM | Pas de cluster K8s à maintenir  
-**VPN Obligatoire** : Cloaking complet | Différenciation marché | Audit trail  
-**PostgreSQL** : ACID garanti | JSONB | Private Link
+```python
+import mcrcon
+
+for server in active_servers:
+    try:
+        with mcrcon.MCRcon(server.ip, "password") as mc:
+            response = mc.command("list")
+            players = int(response.split()[2])
+        
+        if players == 0:
+            server.idle_time += 5
+            if server.idle_time >= 15:
+                subprocess.run(["docker-compose", "stop", server.compose_path])
+                server.status = "stopped"
+    except:
+        pass
+```
+
+---
+
+## 8. POURQUOI CES CHOIX
+
+On a comparé plusieurs solutions :
+
+**Self-Hosting vs Cloud Azure vs Kubernetes**
+
+Self-Hosting (notre choix) :
+- Coûts : 55€/mois (VPS) ou 150€/mois (dédié)
+- Contrôle total (accès root, on fait ce qu'on veut)
+- Simple (pas de complexité Kubernetes)
+- Score : 9.5/10
+
+Cloud Azure :
+- Coûts : 520€/mois
+- Géré par Microsoft (moins de contrôle)
+- Interface graphique simple
+- Score : 7/10
+
+Kubernetes :
+- Coûts : Élevés (overhead du cluster)
+- Très complexe
+- Sur-dimensionné pour notre besoin
+- Score : 5.3/10
+
+**Pourquoi Docker Compose ?**  
+Simple, déclaratif, reproductible. On évite la complexité de Kubernetes.
+
+**Pourquoi une API Python directe ?**  
+Contrôle total sur l'orchestration Docker. On utilise le Docker SDK Python.
+
+**Pourquoi self-hosting ?**  
+Coûts 71% inférieurs à Azure (55€ vs 520€). Contrôle total. Pas de vendor lock-in.
 
 ---
 
 ## 9. RISQUES & OPPORTUNITÉS
 
-### 9.1. Risques (Top 5)
+### Les risques
 
-| Risque | Prob. | Impact | Mitigation |
-|--------|-------|--------|------------|
-| DDoS VPN Gateway | Élevée | Élevé | Azure DDoS Protection + Rate limiting |
-| Saturation VM >15 conteneurs | Moyenne | Moyen | Monitoring + Ajout auto VMs (Terraform) |
-| Fuite données (breach) | Faible | Critique | Chiffrement E2E + Audits trimestriels |
-| Container Escape | Faible | Élevé | Hardening CIS + Scan Trivy + Non-root |
-| Friction VPN install | Moyenne | Moyen | Tutoriels vidéo + Support réactif |
+**DDoS sur l'OpenVPN**  
+Probabilité : Élevée | Impact : Élevé  
+Mitigation : Fail2ban + rate limiting iptables + avoir un serveur VPN de backup
 
-### 9.2. Opportunités (Top 3)
+**Panne du serveur unique**  
+Probabilité : Moyenne | Impact : Élevé  
+Mitigation : Backups quotidiens + plan de disaster recovery (voir section 15)
 
-| Opportunité | Impact | Investissement | ROI |
-|-------------|--------|---------------|-----|
-| **Extension jeux** (Rust, ARK, Valheim) | TAM ×3-5x | 2-3 sem/jeu | +150% CA année 2 |
-| **API publique dev** | +10% clients "power users" | 1 semaine | Trimestre 2 |
-| **Modèle Freemium** | Acquisition virale | 10-20€/mois | -60% CAC |
+**Container escape (évasion du conteneur Docker)**  
+Probabilité : Faible | Impact : Élevé  
+Mitigation : Hardening CIS + conteneurs en non-root + scans de sécurité quotidiens
 
----
+### Les opportunités
 
-## 10. KPIs
+**Extension à d'autres jeux (Rust, ARK, Valheim)**  
+Impact : Marché multiplié par 3 à 5  
+Investissement : 2-3 semaines de dev par jeu  
+ROI : +150% de CA en année 2
 
-| KPI | Cible | Mesure |
-|-----|-------|--------|
-| **Provisioning** | <45s (P95) | Azure Monitor |
-| **Latence API** | <200ms (P95) | Application Insights |
-| **Disponibilité** | 99.5% | Uptime Robot |
-| **Densité VM** | 10-15 conteneurs/VM | `docker ps | wc -l` |
-| **Incidents sécu** | 0 | Azure Sentinel |
-| **Taux connexion VPN** | >95% | Logs OpenVPN |
-| **Coût/serveur** | <3€/mois | Azure Cost Management |
-| **Marge brute** | >48% | (CA-OPEX)/CA |
+**API publique pour développeurs**  
+Impact : +10% de clients "power users"  
+Investissement : 1 semaine  
+ROI : Trimestre 2
+
+**Modèle Freemium (1 serveur gratuit limité)**  
+Impact : Acquisition virale  
+Investissement : 10-20€/mois de coûts  
+ROI : -60% de coût d'acquisition client
 
 ---
 
-## 11. PLANNING
+## 10. LES KPIs
 
-| Phase         | Livrables                                         | Critère Succès                             |
-| ------------- | ------------------------------------------------- | ------------------------------------------ |
-| **MVP**       | API Flask · Docker · PostgreSQL · Auth            | Serveur créé < 60s · Auth fonctionnelle    |
-| **Hardening** | VPN OpenVPN · Key Vault · Rate Limiting           | 0 CVE critique (ZAP) · VPN opérationnel    |
-| **FinOps**    | Auto-Shutdown RCON · Facturation Stripe           | Auto-shutdown validé · Facturation précise |
-| **Prod**      | Tests de charge · Pentest externe · Documentation | 1000 req/s · 0 CVE · DR < 15 min           |
+**Provisioning** : Moins de 2 minutes (percentile 95)  
+Mesure : `time docker-compose up -d`
 
+**Latence API** : Moins de 200ms (percentile 95)  
+Mesure : Prometheus Flask exporter
+
+**Disponibilité** : 99% minimum  
+Mesure : Uptime Kuma (self-hosted)
+
+**Marge brute** : Plus de 85%  
+Calcul : (CA - OPEX) / CA
+
+---
+
+## 11. PLANNING 
+
+**MVP**  
+On fait l'API Flask, le système de déploiement Docker Compose, la base PostgreSQL, et l'authentification.  
+Critère de succès : On peut créer un serveur en moins de 60 secondes.
+
+**Hardening (sécurité)**  
+On configure l'OpenVPN, on met en place le rate limiting, on passe en HTTPS.  
+Critère de succès : Scan OWASP ZAP avec 0 vulnérabilité critique, VPN fonctionnel.
+
+**FinOps**  
+On code l'auto-shutdown et on intègre Stripe pour la facturation.  
+Critère de succès : Auto-shutdown testé, facturation précise à la seconde.
+
+**Production**  
+Tests de charge, pentest externe, documentation.  
+Critère de succès : 1000 requêtes/seconde, 0 CVE critique.
 
 ---
 
 ## 12. RGPD
 
-**Data Residency** : France Central (Azure Paris)  
-**Droits** : Accès (GET /api/user/data) | Oubli (DELETE /api/account, cascade 7j) | Portabilité (JSON+ZIP)  
-**DPO** : dpo@minehost.com (réponse <48h)
+**Où sont les données** : En France (hébergement en France)
+
+**Droits des utilisateurs** :
+- Droit d'accès : `GET /api/user/data` renvoie toutes les données au format JSON
+- Droit à l'oubli : `DELETE /api/account` supprime tout (serveurs + données + compte)
+- Portabilité : Export JSON + ZIP
+
 
 ---
 
 ## 13. BUDGET & ROI
 
-### 13.1. OPEX Mensuel (100 serveurs actifs)
+### Les coûts mensuels
 
-| Composant | Coût |
-|-----------|------|
-| Compute (3 VMs 24/7) | 429€ |
-| Stockage (Azure Files 200GB) | 45€ |
-| PostgreSQL (B2s) | 30€ |
-| Réseau VPN | 70€ |
-| Sécurité (Key Vault + DDoS) | 50€ |
-| **TOTAL** | **624€** → **520€** avec auto-shutdown |
+**Serveur Debian VPS** (8 vCPU, 16GB RAM) : 50€/mois  
+**Stockage backup externe** : 5€/mois  
+**Total** : 55€/mois
 
-**Coût/serveur** : 5.2€/mois
+(Si on prend un serveur dédié : environ 150€/mois)
 
-### 13.2. ROI
+### Le retour sur investissement
 
-| Offre | RAM | Prix | Coût | Marge |
-|-------|-----|------|------|-------|
-| Starter | 2GB | 9.99€ | 4.00€ | 60% |
-| Pro | 4GB | 14.99€ | 6.50€ | 57% |
+**Offre Starter 2GB** : Prix 9.99€/mois | Coût 0.55€ | Marge 9.44€ (94%)
 
-**Projection** : 100 clients Starter → CA 999€ | Coûts 520€ | **Marge 479€ (48%)** | Break-even : 53 clients
+**Avec 100 clients** :
+- Chiffre d'affaires : 999€/mois
+- Coûts : 55€/mois
+- Marge : 944€/mois (94%)
+- Break-even : 6 clients
 
----
-
-## 14. VALIDATION (QA)
-
-### 14.1. Sécurité
-- **SAST** : Bandit + SonarQube (CI/CD) → Bloque si CVE >9.0  
-- **DAST** : OWASP ZAP (hebdo staging) → Test injection SQL, XSS, CSRF, BOLA  
-- **Scan conteneurs** : Trivy (quotidien) → 0 CVE critique  
-- **Pentest externe** : Semaine 9, 5000€, API+VPN+Infra
-
-### 14.2. Charge
-- **Locust** : 1000 users simultanés → 1000 req/s | Erreur <1% | Latence P95 <500ms  
-- **Stress** : 0→2000 users en 10min → Identifier point rupture  
-- **Endurance** : 1000 users pendant 1h → Détecter fuites mémoire
-
-### 14.3. Chaos Engineering
-- **Kill conteneurs** : Arrêt 20% → Restart <30s  
-- **Saturation CPU VM** : stress-ng 100% → Autres VMs OK  
-- **Perte Azure Files** : Démonter 60s → Reconnexion auto
+**Comparaison** :
+- Azure : 520€/mois de coûts → Marge de seulement 48% → Break-even à 53 clients
+- Nous : 55€/mois → Marge de 94% → Break-even à 6 clients
 
 ---
 
-## 15. MAINTENANCE & SUPPORT
+## 14. LES TESTS
 
-### 15.1. Mises à Jour
-- **Docker** : Scan Trivy hebdo → Rebuild si CVE >9.0 → Rolling update 33%/VM  
-- **Python** : Dependabot → Review 2 devs → Merge si CI/CD OK  
-- **VMs** : Unattended Upgrades (apt) → Reboot dimanche 4h
+### Tests de sécurité
 
-### 15.2. Support
+**SAST (analyse statique)** : Bandit sur le code Python, intégré dans CI/CD  
+**DAST (analyse dynamique)** : OWASP ZAP toutes les semaines sur l'environnement de staging  
+**Scans des conteneurs** : Trivy quotidiennement pour détecter les CVE  
+**Pentest externe** : En semaine 9, budget 5000€
 
-| Niveau | Temps Réponse | Canal | SLA |
-|--------|--------------|-------|-----|
-| **P1** (Service Down) | <30min | Tél+Discord | <4h |
-| **P2** (Dégradé) | <4h | Email+Discord | <24h |
-| **P3** (Question) | <24h | FAQ+Chatbot | <48h |
+### Tests de charge
 
-### 15.3. Disaster Recovery
+Locust avec 1000 utilisateurs simultanés. Objectif :
+- 1000 requêtes par seconde soutenues
+- Taux d'erreur < 1%
+- Latence percentile 95 < 500ms
 
-**Objectifs** : RTO 15min | RPO 1h
+### Tests de chaos
 
-**Failover** : Panne France Central → DNS bascule North Europe (T+2min) → Terraform redéploie infra (T+5min) → Restore BDD+Files (T+10min) → Validation (T+14min)
+On simule des pannes :
+- Kill de 20% des conteneurs → Doivent redémarrer en moins de 30 secondes
+- Saturation CPU → Les autres conteneurs doivent continuer de fonctionner
+
+---
+
+## 15. MAINTENANCE ET SUPPORT
+
+### Mises à jour
+
+**Docker** : Scan Trivy hebdomadaire, rebuild des images si CVE critique  
+**Python** : Dependabot sur GitHub, review par 2 devs avant merge  
+**OS Debian** : apt unattended-upgrades pour les mises à jour automatiques
+
+### Support client
+
+**P1 (service down)** : Réponse en moins de 30 minutes  
+**P2 (service dégradé)** : Réponse en moins de 4 heures  
+**P3 (question)** : Réponse en moins de 24 heures
+
+### Disaster Recovery
+
+**Objectifs** : RTO (temps de récupération) de 1 heure, RPO (perte de données) de 24 heures
+
+**Procédure en cas de panne serveur** :
+1. Détection (T+0) : Alerte automatique
+2. Commander un nouveau serveur (T+5min)
+3. Restaurer les backups (T+15min)
+4. Redéployer avec docker-compose (T+30min)
+5. Validation (T+45min)
+6. Communication aux clients (T+60min)
 
 ---
 
 ## 16. ADMINISTRATION
 
-### 16.1. Infrastructure as Code (Terraform)
-```
-terraform/
-├── modules/ (networking, compute, storage, security)
-├── environments/ (dev, staging, prod)
-└── main.tf
-```
-**Bénéfices** : Reproductible | Versionné Git | DR 1 commande | Audit trail
+### Infrastructure as Code
 
-### 16.2. Monitoring
-- **Logs** : Azure Log Analytics (API, Docker, VPN, PostgreSQL) | Rétention 30j  
-- **Métriques** : Grafana temps réel (conteneurs/VM, CPU/RAM, latence API)  
-- **Alerting** : PagerDuty (API Down, CPU>80%, Coût anormal)
+On utilise Docker Compose pour tout :
+
+```yaml
+version: '3.8'
+services:
+  api:
+    build: ./backend
+    ports: ["5000:5000"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  
+    environment:
+      - DB_HOST=postgres
+      - DB_PASSWORD=${DB_PASSWORD}
+  
+  postgres:
+    image: postgres:15
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+  
+  nginx:
+    image: nginx:alpine
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - /etc/letsencrypt:/etc/letsencrypt
+
+networks:
+  minecraft-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  pgdata:
+```
+
+**Déploiement** : `docker-compose up -d`
 
 ---
 
 ## ANNEXES
 
-### A. Glossaire
+### Glossaire 
 
-| Terme | Définition |
-|-------|------------|
-| **AES-256** | Chiffrement symétrique 256 bits |
-| **BOLA/IDOR** | Accès non autorisé à objets d'autres users |
-| **cgroups** | Limitation ressources processus Linux |
-| **CSRF** | Attaque forçant actions non désirées |
-| **NSG** | Network Security Group - Firewall Azure |
-| **P95** | 95e percentile - 95% requêtes plus rapides |
-| **RCON** | Remote Console - Admin Minecraft à distance |
-| **Scrypt** | Fonction hachage résistante GPU |
-| **VNet** | Virtual Network - Réseau privé Azure |
+**Docker Compose** : Outil pour gérer plusieurs conteneurs en même temps avec un fichier YAML  
+**iptables** : Le firewall de Linux  
+**RCON** : Remote Console pour administrer un serveur Minecraft à distance  
+**Percentile 95 (P95)** : 95% des requêtes sont plus rapides que ce seuil
 
-### B. Références
-- **Sécurité** : CIS Docker Benchmark v1.6.0 | OWASP Top 10 (2021) | ISO 27001  
-- **Azure** : docs.microsoft.com/azure/virtual-machines | /azure/files | /azure/vpn-gateway  
-- **Docker** : docs.docker.com/engine | docker-py.readthedocs.io  
-- **Open-Source** : github.com/itzg/docker-minecraft-server
+### Références
 
-### C. Validation Grille Évaluation
+- Docker : docs.docker.com
+- Flask : flask.palletsprojects.com
+- OpenVPN : openvpn.net
+- Minecraft : github.com/itzg/docker-minecraft-server
 
-| Critère | Section | Niveau |
-|---------|---------|--------|
-| **C23.1** (Collecte besoins) | §1.1 (Méthodologie 4 phases, 20 interviews, 34 réponses) |  Pro |
-| **C23.2** (Objectifs fonctionnels) | §2.1-2.2 (3 User Stories détaillées) |  Pro |
-| **C23.3** (Alignement besoins/contraintes) | §3.4 (Matrice traçabilité) |  Pro |
-| **C24.1** (Risques ET opportunités) | §9 (5 risques + 3 opportunités chiffrées) |  Pro |
-| **C24.2** (Justification choix) | §8 (Matrice décision + justifications) |  Pro |
-| **C24.3** (Structuration CDC) | Executive Summary + Exigences numérotées |  Pro |
 
 ---
+
+**Version 2.6 - Style Humain et Simple**  
+**Aydemir Alper & El Mensi Mehdi**
