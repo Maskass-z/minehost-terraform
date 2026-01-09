@@ -613,6 +613,3 @@ volumes:
 
 
 ---
-
-**Version 2.6 - Style Humain et Simple**  
-**Aydemir Alper & El Mensi Mehdi**
