@@ -1,0 +1,41 @@
+services:
+  api_server:
+    build: ./api
+    container_name: minecraft-api
+    depends_on:
+      - api_db
+    ports:
+      - "5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./servers:/home/app/servers
+      
+    env_file:
+      - .env 
+    
+    restart: unless-stopped    
+  api_db:
+    image: postgres:15-alpine
+    container_name: api-database
+    restart: always
+    environment:
+      POSTGRES_USER: api_user
+      POSTGRES_PASSWORD: secret_password 
+      POSTGRES_DB: server_manager_db
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    
+  minecraft_test:
+    image: itzg/minecraft-server
+    container_name: minecraft-test-server
+    environment:
+      EULA: "TRUE"
+      TYPE: "VANILLA" 
+      VERSION: "1.20.1"
+      MEMORY: "256M"  
+      MOTD: "Serveur Test RAM (256M) !"
+    ports:
+      - "25565:25565" 
+    volumes:
+      - ./mc_data:/data 
+    restart: unless-stopped
