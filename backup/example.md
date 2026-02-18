@@ -1,6 +1,6 @@
 # Exemple complet – Sauvegarde puis restauration
 
-## 1️⃣ Création des sauvegardes
+## Création des sauvegardes
 
 ### Dump PostgreSQL
 
@@ -15,7 +15,7 @@ tar -czf /opt/backups/minecraft_2026-02-18.tar.gz \
 /home/maskass/minecraft-automation/servers/
 ```
 
-### Archive de la configuration et scripts
+### Archive de la configuration
 
 ```bash
 tar -czf /opt/backups/config_2026-02-18.tar.gz \
@@ -34,7 +34,7 @@ rsync -avz /opt/backups/ backupuser@azure-vm:/data/minehost-backups/
 
 ---
 
-## 2️⃣ Simulation d’incident
+## Simulation d’incident
 
 Pour illustrer la restauration, on supprime temporairement les données locales :
 
@@ -47,9 +47,9 @@ rm /opt/minehost/docker-compose.yml
 
 ---
 
-## 3️⃣ Restauration depuis les sauvegardes
+## Restauration depuis les sauvegardes
 
-### Récupérer les archives depuis Azure (si nécessaire)
+### Récupérer les archives depuis Azure
 
 ```bash
 rsync -avz backupuser@azure-vm:/data/minehost-backups/ /opt/backups/
@@ -87,3 +87,4 @@ docker-compose -f /opt/minehost/docker-compose.yml up -d
 * La base PostgreSQL contient tous les utilisateurs et serveurs
 * La configuration et les scripts sont présents
 * Les conteneurs Docker démarrent correctement
+
