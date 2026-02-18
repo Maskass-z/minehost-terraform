@@ -8,7 +8,7 @@ Assurer la sauvegarde complète et sécurisée des serveurs Minecraft, de la bas
 
 ## Étapes de sauvegarde
 
-### 1️⃣ Dump PostgreSQL
+### PostgreSQL
 
 ```bash
 pg_dump minehost | gzip > /opt/backups/postgres_$(date +%F).sql.gz
@@ -19,7 +19,7 @@ pg_dump minehost | gzip > /opt/backups/postgres_$(date +%F).sql.gz
 
 ---
 
-### 2️⃣ Archive des volumes Minecraft
+###volumes Minecraft
 
 ```bash
 tar -czf /opt/backups/minecraft_$(date +%F).tar.gz \
@@ -31,7 +31,7 @@ tar -czf /opt/backups/minecraft_$(date +%F).tar.gz \
 
 ---
 
-### 3️⃣ Archive configuration et scripts critiques
+### configuration
 
 ```bash
 tar -czf /opt/backups/config_$(date +%F).tar.gz \
@@ -46,7 +46,7 @@ tar -czf /opt/backups/config_$(date +%F).tar.gz \
 
 ---
 
-### 4️⃣ Synchronisation vers VM Azure
+### Synchronisation azur
 
 ```bash
 rsync -avz /opt/backups/ backupuser@azure-vm:/data/minehost-backups/
@@ -57,7 +57,7 @@ rsync -avz /opt/backups/ backupuser@azure-vm:/data/minehost-backups/
 
 ---
 
-### 5️⃣ Rotation des archives
+### Rotation des archives
 
 **Local (7 jours)** :
 
@@ -76,18 +76,6 @@ ssh backupuser@azure-vm "find /data/minehost-backups -type f -mtime +14 -delete"
 
 ---
 
-### 6️⃣ Automatisation recommandée (cron)
-
-Créer un script `/usr/local/bin/minehost-backup.sh` contenant toutes les commandes ci-dessus puis ajouter à la crontab :
-
-```bash
-0 4 * * * /usr/local/bin/minehost-backup.sh
-```
-
-* Déclenche automatiquement la sauvegarde tous les jours à 4h du matin
-* Permet d’avoir un plan de sauvegarde **100 % automatique et fiable**
-
----
 
 ### Notes
 
@@ -95,3 +83,4 @@ Créer un script `/usr/local/bin/minehost-backup.sh` contenant toutes les comman
 * Flux **chiffré via SSH**, aucun port entrant nécessaire
 * RTO estimé : <10 minutes pour restauration complète
 * RPO : 24h → une sauvegarde quotidienne suffit pour les mondes Minecraft
+
