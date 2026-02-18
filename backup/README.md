@@ -2,45 +2,48 @@
 
 ## 1. Description globale de la sauvegarde
 
-Le projet MineHost utilise une stratégie de sauvegarde multi-niveaux pour sécuriser les données critiques :
+MineHost utilise une stratégie de sauvegarde multi-niveaux pour sécuriser toutes les données critiques de la plateforme et des serveurs Minecraft.
 
-- Données Minecraft (mondes, plugins, playerdata)  
-- Base PostgreSQL locale  
-- Configuration de la plateforme et scripts critiques  
+Les éléments sauvegardés sont :
 
-Chaque jour à 4h, trois archives séparées sont créées, horodatées, et stockées localement dans `/opt/backups/`.  
-Elles sont ensuite synchronisées de manière sécurisée vers une **VM Azure dédiée** via rsync sur SSH.  
+- **Volumes Minecraft** : mondes, plugins, playerdata de chaque serveur  
+  Chemin : `/home/maskass/minecraft-automation/servers/{server_name}`
+- **Base PostgreSQL locale** : comptes utilisateurs, mapping serveurs, facturation  
+  DB : `minehost` → dump via `pg_dump`
+- **Configuration et scripts critiques** : fichiers `.env`, `docker-compose.yml`, scripts d’automatisation, configuration OpenVPN, règles iptables
 
-Cette approche garantit une **restauration rapide (<10 minutes)** et une protection contre les pertes accidentelles, erreurs humaines ou crash serveur.
+Chaque jour à 4h du matin, trois archives séparées sont créées et horodatées dans `/opt/backups/`.  
+Elles sont ensuite synchronisées de manière sécurisée vers une **VM Azure dédiée** via rsync sur SSH.
+
+Cette méthode permet une **restauration complète en moins de 10 minutes** et protège contre les pertes accidentelles, erreurs humaines ou crash serveur.
 
 ---
 
 ## 2. Indicateurs de sauvegarde (liste exhaustive théorique)
 
 - **Infrastructure / Projet**
-  - `.env`
-  - `docker-compose.yml`
-  - Scripts automation
-  - Configuration OpenVPN
-  - Règles iptables custom
+  - `.env`  
+  - `docker-compose.yml`  
+  - Scripts d’automatisation (`/home/maskass/minecraft-automation/scripts/`)  
+  - Configuration OpenVPN (`/etc/openvpn`)  
+  - Règles iptables custom (`/etc/iptables`)  
+
 - **Données applicatives**
-  - Volumes Minecraft : `/opt/minehost/data/{user}/{server}`
-  - Plugins
-  - Playerdata
-  - Server.properties
-  - Logs pertinents
+  - Volumes Minecraft par serveur : `/home/maskass/minecraft-automation/servers/{server_name}`  
+  - Plugins, world, playerdata, server.properties, logs
+
 - **Base de données**
-  - PostgreSQL locale (DB `minehost`)
+  - PostgreSQL locale (DB `minehost`)  
 
 ---
 
 ## 3. Éléments réellement sauvegardés actuellement
 
-- Volumes Minecraft (`/opt/minehost/data`)  
-- Base PostgreSQL (dump gzip)  
-- Configuration plateforme et scripts  
-- Sauvegardes locales 7 jours  
-- Sauvegardes distantes sur VM Azure 14 jours  
+- Volumes Minecraft (`/home/maskass/minecraft-automation/servers/`)  
+- Base PostgreSQL (dump compressé via `pg_dump`)  
+- Configuration et scripts critiques (`.env`, docker-compose.yml, scripts, OpenVPN, iptables)  
+- Rotation locale : 7 jours  
+- Rotation distante sur VM Azure : 14 jours  
 
 ---
 
