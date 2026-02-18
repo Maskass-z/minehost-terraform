@@ -1,4 +1,4 @@
-# 🚀 Plan d’amélioration technique – MineHost
+# Plan d’amélioration technique
 
 Ce dossier rassemble les axes d'évolution stratégiques pour transformer le prototype **MineHost** en une infrastructure de production résiliente, scalable et industrialisée.
 
@@ -6,7 +6,7 @@ L'analyse est segmentée en quatre piliers techniques, chacun répondant à des 
 
 ---
 
-## 📂 Sommaire des axes d'amélioration
+## Sommaire des axes d'amélioration
 
 ### 🛡️ [1. Redondance](./redondance.md)
 *Objectif : Éliminer les points de défaillance uniques (SPOF).*
@@ -30,7 +30,7 @@ L'analyse est segmentée en quatre piliers techniques, chacun répondant à des 
 
 ---
 
-## 🛠️ Méthodologie d'analyse
+## Méthodologie d'analyse
 
 Afin d'assurer une lecture cohérente et structurée, chaque amélioration proposée dans les documents ci-dessus suit le canevas suivant :
 
@@ -43,3 +43,4 @@ Afin d'assurer une lecture cohérente et structurée, chaque amélioration propo
 
 ---
 **Dernière mise à jour :** 18/02/2026
+
