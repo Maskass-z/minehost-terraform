@@ -19,7 +19,7 @@ pg_dump minehost | gzip > /opt/backups/postgres_$(date +%F).sql.gz
 
 ---
 
-###volumes Minecraft
+### volumes Minecraft
 
 ```bash
 tar -czf /opt/backups/minecraft_$(date +%F).tar.gz \
@@ -83,4 +83,5 @@ ssh backupuser@azure-vm "find /data/minehost-backups -type f -mtime +14 -delete"
 * Flux **chiffré via SSH**, aucun port entrant nécessaire
 * RTO estimé : <10 minutes pour restauration complète
 * RPO : 24h → une sauvegarde quotidienne suffit pour les mondes Minecraft
+
 
