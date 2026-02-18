@@ -110,20 +110,6 @@ Docker Network "minecraft-net" (172.20.0.0/16)
 * Docker Compose >= 2.20
 * OpenVPN configuré
 
-### Déploiement infrastructure
-
-```bash
-git clone https://github.com/Maskass-z/minehost-terraform.git
-cd minehost-terraform
-
-cp .env.example .env
-
-docker-compose up -d
-
-docker ps
-docker logs api
-```
-
 ---
 
 ## Guide utilisateur
