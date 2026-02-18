@@ -1,6 +1,5 @@
 Voici le `backup.md` complet pour ton dossier `backup/` :
 
-````markdown
 # Procédure de sauvegarde
 
 ## Objectif
@@ -68,3 +67,4 @@ Cette configuration déclenche automatiquement la sauvegarde tous les jours à 4
 
 ```
 ```
+
