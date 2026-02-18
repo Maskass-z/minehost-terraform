@@ -64,7 +64,3 @@ Créer un script `/usr/local/bin/minehost-backup.sh` avec toutes les commandes c
 ```
 
 Cette configuration déclenche automatiquement la sauvegarde tous les jours à 4h du matin.
-
-```
-```
-
