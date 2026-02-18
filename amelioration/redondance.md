@@ -1,65 +1,82 @@
-# Axe d'amélioration – Gestion d’incidents (C7)
+# Axe d'amélioration – Monitoring (C6)
 
-Ce document définit la stratégie de structuration et de réponse aux anomalies pour la plateforme **MineHost**. L'objectif est de passer d'une correction artisanale à un cycle de vie d'incident industrialisé, garantissant une résolution rapide et une communication transparente.
+Ce document définit la stratégie de surveillance et de métrologie pour la plateforme **MineHost**. L'objectif est de passer d'une gestion réactive à une maintenance proactive en assurant une visibilité totale sur la santé du système, des conteneurs et du réseau.
 
-## 1. Structuration du Support et Remontée d'Incidents
+## 1. Monitoring Système et Infrastructure
 
 ### Cible
-Centraliser toutes les anomalies (bugs, crashs serveurs, problèmes VPN) dans un système de suivi unique pour éviter la perte d'informations.
+Assurer la disponibilité des ressources matérielles et virtuelles (CPU, RAM, Disque) supportant les instances de jeu.
 
 ### Statut actuel
-Actuellement, la gestion est **informelle** :
-* Les erreurs sont repérées via les logs Docker en cas de plainte.
-* Il n'existe pas de canal dédié pour qu'un utilisateur signale une panne.
-* Le suivi de la résolution se fait de mémoire ou via des notes éparpillées.
+L'analyse des performances est rudimentaire :
+* Utilisation de commandes manuelles telles que `top`, `htop` ou `df -h` lors des sessions d'administration.
+* Surveillance des ressources Docker via `docker stats` en ligne de commande.
+* Aucune conservation historique des données de performance.
 
 ### Problématique et Risques
-* **Oubli d'incidents** : Sans centralisation, certains tickets "mineurs" peuvent être oubliés.
-* **Absence d'historique** : Impossible de repérer si un serveur Minecraft crash de manière récurrente (problème de pattern).
-* **Frustration utilisateur** : L'absence de visibilité sur la prise en compte d'un problème réduit la confiance envers MineHost.
+* **Indisponibilité silencieuse** : Un service peut être arrêté sans que l'administrateur n'en soit informé avant la plainte d'un utilisateur.
+* **Saturation des ressources** : Risque de crash brutal (Out Of Memory Kill) si une instance Minecraft consomme plus que prévu, faute d'alertes de seuil.
+* **Diagnostic difficile** : Sans historique, il est impossible d'identifier la cause d'un ralentissement survenu dans le passé (ex: pic de charge à 3h du matin).
 
 ### Améliorations proposées
-* **Ticketing unifié** : Mise en place d'un outil de gestion des tickets.
-    * *Option "Dev"* : Utilisation des **GitHub/GitLab Issues** avec des *templates* précis (Description, Étapes pour reproduire, Comportement attendu).
-    * *Option "Service"* : Installation d'un outil léger comme **GLPI** ou **Zammad** pour séparer les demandes de support des bugs de code.
-* **Canal d'urgence** : Création d'un Webhook automatisé qui poste une alerte sur un canal **Discord** dédié dès qu'une erreur critique est détectée par le monitoring.
+
+**A. Collecte de métriques centralisée**
+* Mise en place de **Prometheus** comme base de données temporelle pour stocker les métriques.
+* Déploiement de **Node Exporter** sur chaque serveur Debian pour remonter l'état de l'hôte (CPU, Température, I/O Disque).
+* Utilisation de **cAdvisor** pour surveiller spécifiquement la consommation de chaque conteneur Docker en temps réel.
+
+**B. Visualisation et Tableaux de Bord**
+* Déploiement de **Grafana** pour centraliser les données dans des dashboards visuels.
+* Création d'une vue "NOC" (Network Operations Center) permettant de visualiser d'un coup d'œil la charge globale de la flotte MineHost.
 
 ---
 
-## 2. Communication et Transparence (Status Page)
+## 2. Monitoring Applicatif et Métrologie Minecraft
 
 ### Cible
-Informer les utilisateurs en temps réel de l'état de santé des services MineHost.
+Surveiller la qualité de l'expérience de jeu (Lag, accès réseau) et la disponibilité des services web.
 
 ### Statut actuel
-* Aucun moyen de savoir si la plateforme est en maintenance ou subit une panne généralisée sans tester soi-même les services.
+* Le statut des serveurs Minecraft est vérifié visuellement dans le client de jeu ou via les logs Docker.
+* Aucune mesure de la latence réseau (Ping) ou de la fluidité du moteur de jeu (TPS).
 
 ### Problématique et Risques
-* **Surcharge du support** : En cas de panne majeure, tous les utilisateurs posent la même question au même moment.
-* **Image de marque** : Une communication inexistante lors d'une panne donne une image de service non professionnel.
+* **Dégradation de l'expérience** : Un serveur peut être "allumé" mais injouable (TPS trop bas).
+* **Faille d'accès** : La dashboard peut être en ligne mais incapable de communiquer avec l'API, rendant le service inutilisable pour le client.
 
 ### Améliorations proposées
-* **Page de statut publique** : Déploiement d'une solution type **Cachet** ou **Statping**.
-    * Cette page affiche l'état opérationnel de chaque composant (VPN, API, Serveurs de jeu).
-    * Elle permet d'annoncer les **maintenances planifiées** à l'avance.
-* **Automatisation** : Couplage avec le monitoring (Prometheus) pour que la page de statut passe automatiquement en "Incident partiel" si un nœud Debian tombe.
+
+**A. Sondes de disponibilité (Blackbox)**
+* Utilisation de **Prometheus Blackbox Exporter** pour tester périodiquement les ports de jeu (25565) et les points d'entrée HTTP.
+* Vérification automatique des codes de retour (HTTP 200) pour la dashboard et l'API.
+
+**B. Indicateurs métier Minecraft**
+* Intégration de plugins d'exportation (type *Prometheus Exporter*) directement dans les instances Minecraft pour remonter :
+    * Le nombre de joueurs connectés.
+    * Les **TPS (Ticks Per Second)** : indicateur réel de la fluidité du serveur.
+    * L'utilisation de la mémoire Java (Heap Usage).
 
 ---
 
-## 3. Procédures de Résolution et Post-Mortem
+## 3. Système d'Alerting et Logs
 
 ### Cible
-Standardiser la manière dont les incidents sont traités pour gagner en efficacité.
+Alerter en temps réel les administrateurs en cas d'anomalie critique.
 
 ### Statut actuel
-* Résolution "au cas par cas" sans procédure établie.
+* Les erreurs sont consignées localement dans les fichiers logs de chaque conteneur.
+* La détection d'incident dépend de la surveillance humaine.
 
 ### Améliorations proposées
-* **Création d'un Runbook** : Rédaction d'un guide technique (Wiki) listant les commandes de secours pour les incidents fréquents (ex: "Comment redémarrer proprement le cluster VPN sans perdre les sessions").
-* **Processus de Post-Mortem** : Pour chaque incident majeur (coupure > 1h), rédaction d'un document simple :
-    1. **Cause racine** (Pourquoi c'est arrivé ?)
-    2. **Actions immédiates** (Comment on a réparé ?)
-    3. **Actions préventives** (Comment éviter que cela recommence ?)
+
+**A. Centralisation des Logs (Logging)**
+* Mise en œuvre d'une stack **Loki + Promtail** pour agréger tous les logs Docker dans une interface unique.
+* Possibilité de rechercher des erreurs spécifiques (ex: "Can't keep up!") sur l'ensemble des serveurs simultanément.
+
+**B. Alerting Automatisé**
+* Configuration de **Alertmanager** pour envoyer des notifications critiques :
+    * **Canaux** : Discord, Slack ou Email.
+    * **Critères** : Serveur Down, CPU > 90%, ou perte de connexion VPN.
 
 ---
 
@@ -67,9 +84,10 @@ Standardiser la manière dont les incidents sont traités pour gagner en efficac
 
 | Composant | Risque actuel | Solution cible | Bénéfice |
 | :--- | :--- | :--- | :--- |
-| **Signalement** | Perte d'infos / Oubli | Ticketing (GitHub/Jira) | Traçabilité totale des bugs |
-| **Information** | Utilisateur aveugle | Status Page publique | Réduction des plaintes support |
-| **Réparation** | Dépendance humaine | Runbooks & Post-mortem | Capitalisation du savoir technique |
+| **Ressources Hôte** | Saturation invisible | Prometheus + Grafana | Anticipation des besoins en scalabilité |
+| **Instances de jeu** | Lag non détecté | Minecraft Exporter (TPS) | Garantie d'une expérience de jeu fluide |
+| **Disponibilité** | Alerte par l'utilisateur | Alertmanager (Discord/Mail) | Réduction drastique du temps de réaction |
+| **Logs** | Perte au redémarrage | Stack Loki | Analyse post-mortem facilitée |
 
 ## Conclusion
-La gestion d'incidents ne se limite pas à "réparer ce qui est cassé". En industrialisant ces processus, MineHost s'assure que chaque erreur devient une opportunité d'amélioration. C'est le complément indispensable du monitoring : le monitoring voit l'erreur, la gestion d'incidents la traite.
+Le passage à une infrastructure monitorée transforme MineHost en une plateforme **professionnelle et fiable**. Cette visibilité accrue permet non seulement de résoudre les incidents plus rapidement, mais aussi d'optimiser les coûts en ajustant les ressources au plus près des besoins réels des joueurs.
