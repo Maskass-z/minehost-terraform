@@ -74,9 +74,10 @@ Les volumes Docker sont stockés localement sur le disque du serveur Debian uniq
 
 | Composant | Risque actuel | Solution cible | Bénéfice |
 | :--- | :--- | :--- | :--- |
-| **Serveur de Jeu** | Arrêt total si crash VM | Cluster multi-nœuds | Disponibilité > 99.9% |
+| **Serveur de Jeu** | Arrêt total si crash VM | Cluster multi-nœuds | Disponibilité > 95% |
 | **Accès VPN** | Perte de contrôle distante | Failover Keepalived | Accès permanent |
 | **Données** | Perte de fichiers locale | Réplication GlusterFS | Résilience des données |
 
 ##  Conclusion
 La mise en œuvre de ces mécanismes de redondance transforme MineHost en une solution de classe "Entreprise". Bien que cela augmente les coûts d'infrastructure, c'est une étape indispensable pour garantir la confiance des utilisateurs et la pérennité du service face aux aléas techniques inévitables.
+
