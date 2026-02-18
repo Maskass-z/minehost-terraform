@@ -763,11 +763,11 @@ Procédure :
 
 | Source | Destination | Port | Autorisé ? |
 |--------|-------------|------|-----------|
-| Internet | Serveur | 2222 |  SSH admin |
-| Internet | Serveur | 1194 |  OpenVPN |
-| Internet | Serveur | 443 | HTTPS |
-| Internet | API | 5000 |  Protégé |
-| Internet | Minecraft | 25565 |  Protégé |
+| Internet | Serveur | 2222 |   oui SSH admin |
+| Internet | Serveur | 1194 |  oui OpenVPN |
+| Internet | Serveur | 443 | oui HTTPS |
+| Internet | API | 5000 |  non Protégé |
+| Internet | Minecraft | 25565 |  non Protégé |
 | VPN | API | 5000 |  OK |
 | VPN | Minecraft | 25565 |  OK |
 | API | PostgreSQL | 5432 |  OK |
