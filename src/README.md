@@ -1,4 +1,3 @@
-```markdown
 # 🏰 MineHost — Plateforme d’Hébergement Minecraft Sécurisée
 
 > **Projet Fil Rouge — Bachelor Cybersécurité & Ethical Hacking — EFREI 2025-2026**
