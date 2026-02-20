@@ -1,4 +1,4 @@
-# 🏰 MineHost — Plateforme d’Hébergement Minecraft Sécurisée
+# MineHost — Plateforme d’Hébergement Minecraft Sécurisée
 
 > **Projet Fil Rouge — Bachelor Cybersécurité & Ethical Hacking — EFREI 2025-2026**
 
@@ -6,7 +6,7 @@
 
 ---
 
-## 🎯 Objectif du projet
+## Objectif du projet
 
 MineHost répond aux problématiques critiques des hébergeurs Minecraft classiques :
 * ❌ Exposition Internet directe (risques d'attaques).
@@ -20,7 +20,7 @@ La solution **MineHost** propose :
 
 ---
 
-## ⚙️ Fonctionnalités principales
+## Fonctionnalités principales
 
 * **Dashboard Web** : Interface utilisateur intuitive.
 * **Création Serveur** : Déploiement automatisé de conteneurs Minecraft.
@@ -30,14 +30,14 @@ La solution **MineHost** propose :
 
 ---
 
-## 🏗 Architecture Technique
+## Architecture Technique
 
 **Stack Infrastructure :**
-* 🐧 **OS** : Debian 12 (Self-hosted)
-* 🐳 **Containerization** : Docker Engine
-* 🐍 **Backend** : API Python Flask
-* 🐘 **Database** : PostgreSQL
-* 🔒 **Sécurité** : OpenVPN & iptables
+* **OS** : Debian 12 (Self-hosted)
+* **Containerization** : Docker Engine
+* **Backend** : API Python Flask
+* **Database** : PostgreSQL
+* **Sécurité** : OpenVPN & iptables
 
 **Flux Applicatif :**
 `Utilisateur` → `Dashboard` → `API` → `Docker` → `Serveur Minecraft isolé`
@@ -65,7 +65,7 @@ graph TD
 
 ---
 
-## 🚀 Installation & Démarrage
+## Installation & Démarrage
 
 ### 1. Cloner le projet
 
@@ -100,7 +100,7 @@ docker ps
 
 ---
 
-## 🖥 Démonstration Utilisateur
+## Démonstration Utilisateur
 
 ### Accès Dashboard
 
@@ -117,7 +117,7 @@ docker ps
 
 ---
 
-## 🛡 Sécurité & Hardening
+## Sécurité & Hardening
 
 * **Network** : Aucune IP publique exposée pour les serveurs de jeu.
 * **Firewall** : Règles `iptables` en `DROP` par défaut.
@@ -145,7 +145,7 @@ docker logs -f api
 
 ---
 
-## 📈 Scalabilité & Performance
+## Scalabilité & Performance
 
 **Machine actuelle :**
 
@@ -157,7 +157,7 @@ docker logs -f api
 
 ---
 
-## 📂 Structure du dépôt
+## Structure du dépôt
 
 ```text
 .
@@ -174,17 +174,9 @@ docker logs -f api
 
 ---
 
-## 👥 Équipe
+## Équipe
 
 **Projet Fil Rouge EFREI Bordeaux 2025-2026**
 
-* 👨‍💻 **Lead Dev / DevSecOps** : Aydemir Alper
-* 👨‍🔧 **SRE / FinOps** : El Mensi Mehdi
-
----
-
-## 📚 Documentation
-
-Pour la documentation technique détaillée (développeur), consulter :
-
-👉 [`src/README.md`](https://www.google.com/search?q=./src/README.md)
+* **Lead Dev / DevSecOps** : Aydemir Alper
+* **SRE / FinOps** : El Mensi Mehdi
