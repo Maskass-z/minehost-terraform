@@ -46,7 +46,7 @@ La solution **MineHost** propose :
 
 ```mermaid
 graph TD
-    User[Utilisateur] -->|HTTPS| Web[Dashboard Nginx/Flask]
+    User[Utilisateur] -->|HTTPS| Web[Dashboard Flask]
     Web -->|API Call| Docker[Docker Engine]
     Docker -->|Deploy| MC[Conteneur Minecraft]
     
