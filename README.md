@@ -1,4 +1,3 @@
-```markdown
 # MineHost -- Plateforme d'Hébergement Minecraft Sécurisée (Zero Trust)
 
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-success)](https://github.com)
