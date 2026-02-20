@@ -183,4 +183,4 @@ docker logs -f api
 
 # Minehost Terraform
 
-Documentation et preuve : [preuve.pdf](docs/preuve.pdf)
+Documentation et preuve : [preuve.pdf](https://github.com/Maskass-z/minehost-terraform/blob/main/src/Preuve.pdf)
