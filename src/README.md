@@ -181,4 +181,6 @@ docker logs -f api
 * **SRE / FinOps** : El Mensi Mehdi
 ---
 
-<iframe src="docs/preuve.pdf" width="600" height="800"></iframe>
+# Minehost Terraform
+
+Documentation et preuve : [preuve.pdf](docs/preuve.pdf)
