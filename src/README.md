@@ -52,14 +52,13 @@ graph TD
     
     subgraph Sécurité
     VPN[OpenVPN Gateway]
-    FW[Firewall iptables]
+    FW
     end
     
     User -.->|Tunnel VPN| VPN
     VPN -->|Traffic Jeu| MC
     
-    MC -->|Logs/Metrics| Prom[Prometheus]
-    Prom --> Graf[Grafana]
+    MC
 
 ```
 
