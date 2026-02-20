@@ -37,7 +37,7 @@ La solution **MineHost** propose :
 * **Containerization** : Docker Engine
 * **Backend** : API Python Flask
 * **Database** : PostgreSQL
-* **Sécurité** : OpenVPN & iptables
+* **Sécurité** : OpenVPN
 
 **Flux Applicatif :**
 `Utilisateur` → `Dashboard` → `API` → `Docker` → `Serveur Minecraft isolé`
