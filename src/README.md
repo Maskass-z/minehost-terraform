@@ -179,3 +179,6 @@ docker logs -f api
 
 * **Lead Dev / DevSecOps** : Aydemir Alper
 * **SRE / FinOps** : El Mensi Mehdi
+---
+
+<iframe src="docs/preuve.pdf" width="600" height="800"></iframe>
